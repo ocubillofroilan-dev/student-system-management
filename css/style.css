@@ -1,0 +1,19 @@
+:root {
+  --navy: #1B2A4A;
+  --navy-dark: #121D33;
+  --navy-soft: #2A3D63;
+  --gold: #C9A227;
+  --gold-light: #E7CE7E;
+  --bg: #F5F6F8;
+  --surface: #FFFFFF;
+  --text: #1F2430;
+  --text-muted: #5B6472;
+  --success: #2F8F5B;
+  --danger: #C4453A;
+  --late: #B8791A;
+  --border: #E2E5EA;
+
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Inter", -apple-system, Segoe UI, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
