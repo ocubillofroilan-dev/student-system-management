@@ -17,3 +17,16 @@
   --font-body: "Inter", -apple-system, Segoe UI, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+}
+
+h1, h2, h3, .display-font {
+  font-family: var(--font-display);
+  color: var(--navy-dark);
+}
+
+a { color: var(--navy); }
+a:hover { color: var(--gold); }
