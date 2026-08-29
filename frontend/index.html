@@ -67,8 +67,32 @@
     </div>
   </div>
 </header>
+<!-- ===== Announcements ===== -->
+<main class="max-w-6xl mx-auto px-4 py-14">
+  <div class="max-w-3xl mx-auto">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="font-display text-xl font-semibold">Announcements</h2>
+      <span class="text-sm text-muted">Public — no login required to view</span>
+    </div>
+    <div id="publicAnnouncements" class="bg-white border border-border rounded-lg divide-y divide-border">
+      <div class="text-center text-muted py-8">Loading announcements…</div>
+    </div>
+  </div>
+</main>
+
+<footer class="border-t border-border py-6">
+  <div class="max-w-6xl mx-auto px-4 text-center text-sm text-muted">
+    &copy; 2026 Northbridge College — Student System Management
+  </div>
+</footer>
 </body>
 </html>
-
+<script src="js/api.js"></script>
+<script>
+  document.getElementById('navToggle').addEventListener('click', () => {
+    document.getElementById('topNav').classList.toggle('hidden');
+  });
+</script>
+<script src="js/home.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="js/tailwind-config.js"></script>
