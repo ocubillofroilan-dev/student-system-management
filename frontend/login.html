@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Log In — Northbridge College</title>
+<link rel="stylesheet" href="css/companion.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="js/tailwind-config.js"></script>
+</head>
+<body class="bg-[#F5F6F8] text-ink font-body min-h-screen flex items-center">
+
+<div class="max-w-4xl mx-auto px-4 w-full">
+  <div class="bg-white border border-border rounded-xl shadow-lg overflow-hidden grid md:grid-cols-[5fr_7fr]">
+
+    <!-- Left: navy info panel, hidden on mobile -->
+    <div class="hidden md:flex flex-col justify-between bg-gradient-to-b from-navy-dark to-navy text-white p-8">
+      <div>
+        <div class="font-display font-semibold mb-6">
+          Northbridge College
+          <small class="block font-mono text-[0.62rem] tracking-[0.18em] text-gold-light uppercase">Student System Management</small>
+        </div>
+        <h2 class="font-display text-2xl font-semibold mb-2">Welcome back.</h2>
+        <p class="text-white/60">Log in to view your schedule, attendance, and grades — or, if you're faculty, to manage them.</p>
+      </div>
+      <p class="text-white/60 text-sm mb-0">New here? <a href="signup.html" class="text-white underline">Create an account</a></p>
+    </div>
+
+    <!-- Right: the form -->
+    <div class="p-8">
+      <h1 class="font-display text-xl font-semibold mb-4">Log In</h1>
+
+      <div id="loginError" class="hidden bg-[#FBE8E6] border border-[#F3C7C2] text-[#8A2E26] rounded-md px-3 py-2 mb-4 text-sm"></div>
+
+      <form id="loginForm" novalidate class="space-y-4">
+        <div>
+          <label for="loginId" class="block text-sm font-semibold text-navy-dark mb-1">Student / Teacher ID Number</label>
+          <input type="text" id="loginId" required placeholder="e.g. 2026-00123"
+                 class="w-full font-mono border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+        </div>
+        <div>
+          <label for="loginPassword" class="block text-sm font-semibold text-navy-dark mb-1">Password</label>
+          <input type="password" id="loginPassword" required
+                 class="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+        </div>
+        <button type="submit" id="loginButton"
+                class="w-full bg-navy text-white rounded-md py-2.5 font-semibold hover:bg-navy-dark transition disabled:opacity-60">
+          Log In
+        </button>
+      </form>
+
+      <p class="text-center text-sm mt-6 md:hidden">
+        New here? <a href="signup.html" class="text-navy underline">Create an account</a>
+      </p>
+      <p class="text-center text-sm mt-6">
+        <a href="index.html" class="text-muted">&larr; Back to home</a>
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+</body>
+</html>
