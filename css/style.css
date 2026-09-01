@@ -7,3 +7,6 @@
 }
 
 body { font-family: var(--font-body); }
+
+.app-navbar .nav-link { color: rgba(255,255,255,0.7); }
+.app-navbar .nav-link.active { color: #fff; font-weight: 600; }
