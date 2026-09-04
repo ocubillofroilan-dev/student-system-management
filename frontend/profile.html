@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Profile — Northbridge College</title>
+<link rel="stylesheet" href="css/companion.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="js/tailwind-config.js"></script>
+</head>
+<body class="bg-[#F5F6F8] text-ink font-body">
+
+<nav class="app-navbar bg-navy-dark border-b-[3px] border-gold py-2">
+  <div class="max-w-6xl mx-auto px-4 flex items-center justify-between flex-wrap">
+    <a href="dashboard.html" class="font-display text-white font-semibold">Northbridge</a>
+    <button id="navToggle" class="lg:hidden inline-flex border border-white/40 rounded px-2.5 py-1.5">
+      <span class="block w-5 h-0.5 bg-white relative
+                   before:content-[''] before:absolute before:w-5 before:h-0.5 before:bg-white before:-top-1.5
+                   after:content-[''] after:absolute after:w-5 after:h-0.5 after:bg-white after:top-1.5"></span>
+    </button>
+    <div id="appNav" class="hidden lg:flex w-full lg:w-auto lg:items-center lg:justify-between lg:flex-1 lg:ml-8 mt-3 lg:mt-0">
+      <ul class="flex flex-col lg:flex-row gap-1 lg:gap-5 list-none m-0 p-0">
+        <li><a class="nav-link" href="dashboard.html">Home</a></li>
+        <li><a class="nav-link" href="profile.html">Profile</a></li>
+        <li><a class="nav-link" href="course.html">Course</a></li>
+        <li><a class="nav-link" href="schedule.html">Schedule</a></li>
+        <li><a class="nav-link" href="attendance.html">Attendance</a></li>
+        <li><a class="nav-link" href="grades.html">Grades</a></li>
+      </ul>
+      <div class="flex items-center gap-3 mt-3 lg:mt-0">
+        <span class="text-white/60 text-sm"><span data-user-name></span> &middot; <span data-user-role></span></span>
+        <a href="#" data-logout class="px-3 py-1.5 text-sm rounded border border-white/50 text-white hover:bg-white/10 hover:border-white transition">Log Out</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main class="max-w-2xl mx-auto px-4 py-8">
+  <h1 class="font-display text-xl font-semibold mb-1">My Profile</h1>
+  <p class="text-muted text-sm mb-6">You can edit your own details here. Your ID number and role can't be changed.</p>
+
+  <div class="bg-white border border-border rounded-lg p-6">
+    <div id="profileError" class="hidden bg-[#FBE8E6] border border-[#F3C7C2] text-[#8A2E26] rounded-md px-3 py-2 mb-4 text-sm"></div>
+    <div id="profileSuccess" class="hidden bg-[#E4F3EA] border border-[#BEE3CD] text-success rounded-md px-3 py-2 mb-4 text-sm">Profile updated.</div>
+
+    <form id="profileForm" class="space-y-4">
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label for="pIdNumber" class="block text-sm font-semibold text-navy-dark mb-1">ID Number</label>
+          <input type="text" id="pIdNumber" disabled class="w-full font-mono border border-border rounded-md px-3 py-2 bg-[#F5F6F8] text-muted">
+        </div>
+        <div>
+          <label for="pRole" class="block text-sm font-semibold text-navy-dark mb-1">Role</label>
+          <input type="text" id="pRole" disabled class="w-full border border-border rounded-md px-3 py-2 bg-[#F5F6F8] text-muted">
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-4">
+        <div>
+          <label for="pFirstName" class="block text-sm font-semibold text-navy-dark mb-1">First Name</label>
+          <input type="text" id="pFirstName" required class="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+        </div>
+        <div>
+          <label for="pLastName" class="block text-sm font-semibold text-navy-dark mb-1">Last Name</label>
+          <input type="text" id="pLastName" required class="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+        </div>
+        <div>
+          <label for="pMiddleName" class="block text-sm font-semibold text-navy-dark mb-1">Middle Name</label>
+          <input type="text" id="pMiddleName" class="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+        </div>
+      </div>
+
+      <div>
+        <label for="pDepartment" class="block text-sm font-semibold text-navy-dark mb-1">Department</label>
+        <input type="text" id="pDepartment" class="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+      </div>
+
+      <div id="studentOnlyFields" class="hidden grid md:grid-cols-2 gap-4">
+        <div>
+          <label for="pYearLevel" class="block text-sm font-semibold text-navy-dark mb-1">Year Level</label>
+          <select id="pYearLevel" class="w-full border border-border rounded-md px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+            <option value="">Choose…</option>
+            <option>1st Year</option><option>2nd Year</option><option>3rd Year</option>
+            <option>4th Year</option><option>5th Year</option>
+          </select>
+        </div>
+        <div>
+          <label for="pCourse" class="block text-sm font-semibold text-navy-dark mb-1">Course / Program</label>
+          <input type="text" id="pCourse" class="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+        </div>
+      </div>
+
+      <button type="submit" class="bg-navy text-white rounded-md px-6 py-2.5 font-semibold hover:bg-navy-dark transition">Save Changes</button>
+    </form>
+  </div>
+</main>
+
+<footer class="border-t border-border py-6 mt-4">
+  <div class="max-w-6xl mx-auto px-4 text-center text-sm text-muted">&copy; 2026 Northbridge College — Student System Management</div>
+</footer>
+
+<script src="js/api.js"></script>
+<script src="js/guard.js"></script>
+<script>
+  document.getElementById('navToggle').addEventListener('click', () => {
+    document.getElementById('appNav').classList.toggle('hidden');
+  });
+</script>
+<script src="js/profile.js"></script>
+</body>
+</html>
