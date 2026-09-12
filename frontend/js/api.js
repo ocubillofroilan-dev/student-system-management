@@ -1,9 +1,3 @@
-/**
- * api.js — the ONLY place that knows the backend URL and how to call it.
- * Every other script calls window.api.get/post/put/del instead of using
- * fetch() directly, so auth headers and error handling stay consistent.
- */
-
 const API_BASE_URL = "http://127.0.0.1:8000";
 
 function getToken() {
