@@ -11,7 +11,7 @@ function renderNavbar() {
   slot.innerHTML = `
     <nav class="app-navbar bg-navy-dark border-b-[3px] border-gold py-2">
       <div class="max-w-6xl mx-auto px-4 flex items-center justify-between flex-wrap">
-        <a href="dashboard.html" class="font-display text-white font-semibold">Northbridge</a>
+        <a href="dashboard.html" class="font-display text-white font-semibold">EDU</a>
         <button id="navToggle" class="lg:hidden inline-flex border border-white/40 rounded px-2.5 py-1.5">
           <span class="block w-5 h-0.5 bg-white relative
                        before:content-[''] before:absolute before:w-5 before:h-0.5 before:bg-white before:-top-1.5
