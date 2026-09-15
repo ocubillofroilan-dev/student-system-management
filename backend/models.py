@@ -8,7 +8,7 @@ from typing import Optional
 
 
 class SignupRequest(BaseModel):
-    role: str  # "student" or "teacher"
+    role: str
     first_name: str
     last_name: str
     middle_name: Optional[str] = ""
@@ -35,6 +35,10 @@ class UserOut(BaseModel):
     year_level: Optional[str] = None
     department: Optional[str] = None
     course: Optional[str] = None
+    birthdate: Optional[str] = None
+    gender: Optional[str] = None
+    photo_id: Optional[str] = None
+    created_at: Optional[str] = None
 
 
 class TokenResponse(BaseModel):
@@ -49,6 +53,9 @@ class ProfileUpdateRequest(BaseModel):
     department: Optional[str] = None
     year_level: Optional[str] = None
     course: Optional[str] = None
+    birthdate: Optional[str] = None
+    gender: Optional[str] = None
+    photo_id: Optional[str] = None
 
 
 class AnnouncementCreate(BaseModel):
@@ -60,26 +67,4 @@ class CourseCreate(BaseModel):
     code: str
     title: str
     department: Optional[str] = ""
-    units: Optional[int] = 3
-    description: Optional[str] = ""
-
-class ScheduleCreate(BaseModel):
-    course_id: str
-    day_of_week: str
-    start_time: str
-    end_time: str
-    room: Optional[str] = ""
-
-
-class AttendanceCreate(BaseModel):
-    student_id: str
-    course_id: str
-    date: str
-    status: str  # "present", "absent", or "late"
-
-
-class GradeCreate(BaseModel):
-    student_id: str
-    course_id: str
-    grading_period: str
-    grade: str
+    units: Optional[int] =
