@@ -9,25 +9,63 @@
 <script src="js/tailwind-config.js"></script>
 </head>
 <body class="bg-[#FAF6EC] text-ink font-body">
+
 <div id="navbar-slot"></div>
 
-<main class="max-w-6xl mx-auto px-4 py-8">
+<main class="max-w-3xl mx-auto px-4 py-8">
   <h1 class="font-display text-xl font-semibold mb-1">My Profile</h1>
-  <p class="text-muted text-sm mb-6">You can edit your own details here. Your ID number and role can't be changed.</p>
+  <p class="text-muted text-sm mb-6">View your information, edit it, or show your digital school ID.</p>
 
-  <div class="bg-white border border-border rounded-lg p-6">
-    <div id="profileError" class="hidden bg-[#FBE8E6] border border-[#F3C7C2] text-[#8A2E26] rounded-md px-3 py-2 mb-4 text-sm"></div>
-    <div id="profileSuccess" class="hidden bg-[#E4F3EA] border border-[#BEE3CD] text-success rounded-md px-3 py-2 mb-4 text-sm">Profile updated.</div>
+  <div id="profileError" class="hidden bg-[#FBE8E6] border border-[#F3C7C2] text-[#8A2E26] rounded-md px-3 py-2 mb-4 text-sm"></div>
+  <div id="profileSuccess" class="hidden bg-[#E4F3EA] border border-[#BEE3CD] text-success rounded-md px-3 py-2 mb-4 text-sm">Profile updated.</div>
+
+  <!-- ===== VIEW MODE ===== -->
+  <div id="viewMode" class="bg-white border border-border rounded-xl p-6">
+    <div class="flex items-center gap-4 mb-6">
+      <div id="viewPhotoWrap" class="w-20 h-20 rounded-full bg-border overflow-hidden flex items-center justify-center text-muted font-mono text-xs">
+        No Photo
+      </div>
+      <div>
+        <div class="font-display text-lg font-semibold" data-view="fullName">—</div>
+        <div class="text-sm text-muted" data-view="idNumber">—</div>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-x-6 gap-y-4 text-sm">
+      <div><span class="text-muted block">School ID Number</span><span class="font-mono" data-view="idNumber2">—</span></div>
+      <div><span class="text-muted block">Birthdate</span><span data-view="birthdate">—</span></div>
+      <div><span class="text-muted block">Gender</span><span data-view="gender">—</span></div>
+      <div><span class="text-muted block">Department</span><span data-view="department">—</span></div>
+      <div><span class="text-muted block">Year Level</span><span data-view="yearLevel">—</span></div>
+      <div><span class="text-muted block">Course / Program</span><span data-view="course">—</span></div>
+      <div><span class="text-muted block">Enrolled Since</span><span data-view="enrolledSince">—</span></div>
+    </div>
+
+    <div class="flex gap-3 mt-6">
+      <button id="btnEdit" class="bg-navy text-white rounded-md px-5 py-2 font-semibold hover:bg-navy-dark transition">Edit Information</button>
+      <button id="btnShowId" class="border border-navy text-navy rounded-md px-5 py-2 font-semibold hover:bg-navy hover:text-white transition">Show School ID</button>
+    </div>
+  </div>
+
+  <!-- ===== EDIT MODE ===== -->
+  <div id="editMode" class="hidden bg-white border border-border rounded-xl p-6">
+    <div class="mb-4">
+      <label class="block text-sm font-semibold text-navy-dark mb-1">Photo</label>
+      <div class="flex items-center gap-4">
+        <div id="editPhotoPreview" class="w-16 h-16 rounded-full bg-border overflow-hidden flex items-center justify-center text-muted font-mono text-xs">No Photo</div>
+        <input type="file" id="photoInput" accept="image/*" class="text-sm">
+      </div>
+    </div>
 
     <form id="profileForm" class="space-y-4">
       <div class="grid md:grid-cols-2 gap-4">
         <div>
           <label for="pIdNumber" class="block text-sm font-semibold text-navy-dark mb-1">ID Number</label>
-          <input type="text" id="pIdNumber" disabled class="w-full font-mono border border-border rounded-md px-3 py-2 bg-[#F5F6F8] text-muted">
+          <input type="text" id="pIdNumber" disabled class="w-full font-mono border border-border rounded-md px-3 py-2 bg-[#FAF6EC] text-muted">
         </div>
         <div>
           <label for="pRole" class="block text-sm font-semibold text-navy-dark mb-1">Role</label>
-          <input type="text" id="pRole" disabled class="w-full border border-border rounded-md px-3 py-2 bg-[#F5F6F8] text-muted">
+          <input type="text" id="pRole" disabled class="w-full border border-border rounded-md px-3 py-2 bg-[#FAF6EC] text-muted">
         </div>
       </div>
 
@@ -46,9 +84,24 @@
         </div>
       </div>
 
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label for="pBirthdate" class="block text-sm font-semibold text-navy-dark mb-1">Birthdate</label>
+          <input type="date" id="pBirthdate" class="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+        </div>
+        <div>
+          <label for="pGender" class="block text-sm font-semibold text-navy-dark mb-1">Gender</label>
+          <select id="pGender" class="w-full border border-border rounded-md px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+            <option value="">Choose…</option>
+            <option>Male</option>
+            <option>Female</option>
+          </select>
+        </div>
+      </div>
+
       <div>
         <label for="pDepartment" class="block text-sm font-semibold text-navy-dark mb-1">Department</label>
-        <input type="text" id="pDepartment" class="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+        <select id="pDepartment" class="w-full border border-border rounded-md px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"></select>
       </div>
 
       <div id="studentOnlyFields" class="hidden grid md:grid-cols-2 gap-4">
@@ -62,12 +115,59 @@
         </div>
         <div>
           <label for="pCourse" class="block text-sm font-semibold text-navy-dark mb-1">Course / Program</label>
-          <input type="text" id="pCourse" class="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+          <select id="pCourse" class="w-full border border-border rounded-md px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"></select>
         </div>
       </div>
 
-      <button type="submit" class="bg-navy text-white rounded-md px-6 py-2.5 font-semibold hover:bg-navy-dark transition">Save Changes</button>
+      <div class="flex gap-3">
+        <button type="submit" class="bg-gold text-navy-dark rounded-md px-6 py-2.5 font-semibold hover:bg-gold-light transition">Save Changes</button>
+        <button type="button" id="btnCancelEdit" class="border border-muted text-muted rounded-md px-6 py-2.5 hover:bg-muted hover:text-white transition">Cancel</button>
+      </div>
     </form>
+  </div>
+
+  <!-- ===== ID CARD MODE (photo_id) ===== -->
+  <div id="idCardMode" class="hidden">
+    <div class="max-w-md mx-auto bg-white rounded-2xl overflow-hidden shadow-xl border border-border">
+      <div class="bg-gradient-to-r from-navy-dark to-navy px-5 py-4 flex items-center justify-between">
+        <div class="font-display text-white font-bold text-lg leading-tight">ENCHONG DEE<br>UNIVERSITY</div>
+        <img src="./images/edu.png" alt="EDU Seal" class="w-14 h-14 object-contain">
+      </div>
+
+      <div class="p-5">
+        <div class="flex gap-4">
+          <div class="flex-1 space-y-3 text-sm">
+            <div class="flex items-start gap-2">
+              <span class="text-gold">👤</span>
+              <div><div class="text-xs text-muted uppercase tracking-wide">Name</div><div class="font-semibold" data-id="fullName">—</div></div>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="text-gold">🏛️</span>
+              <div><div class="text-xs text-muted uppercase tracking-wide">Department</div><div class="font-semibold" data-id="department">—</div></div>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="text-gold">🎓</span>
+              <div><div class="text-xs text-muted uppercase tracking-wide" data-id="courseLabel">Program</div><div class="font-semibold" data-id="course">—</div></div>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="text-gold">🆔</span>
+              <div><div class="text-xs text-muted uppercase tracking-wide">Role</div><div class="font-semibold" data-id="role">—</div></div>
+            </div>
+          </div>
+          <div id="idCardPhotoWrap" class="w-24 h-28 bg-[#FAF6EC] border border-border rounded-lg overflow-hidden flex items-center justify-center text-muted text-xs font-mono flex-shrink-0">
+            No Photo
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-navy text-white text-center font-mono tracking-widest py-2 text-sm" data-id="idNumber">—</div>
+      <div class="text-center text-muted text-xs italic px-4 py-3">
+        "Where learning becomes growth, and dreams become achievements."
+      </div>
+    </div>
+    <div class="text-center mt-4">
+      <button id="btnCloseId" class="border border-navy text-navy rounded-md px-5 py-2 font-semibold hover:bg-navy hover:text-white transition">Close</button>
+    </div>
   </div>
 </main>
 
@@ -78,6 +178,7 @@
 <script src="js/api.js"></script>
 <script src="js/navbar.js"></script>
 <script src="js/guard.js"></script>
-<script src="js/dashboard.js"></script>
+<script src="js/colleges.js"></script>
+<script src="js/profile.js"></script>
 </body>
 </html>
