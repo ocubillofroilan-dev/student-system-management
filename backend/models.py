@@ -67,4 +67,27 @@ class CourseCreate(BaseModel):
     code: str
     title: str
     department: Optional[str] = ""
-    units: Optional[int] =
+    units: Optional[int] = 3
+    description: Optional[str] = ""
+
+
+class ScheduleCreate(BaseModel):
+    course_id: str
+    day_of_week: str
+    start_time: str
+    end_time: str
+    room: Optional[str] = ""
+
+
+class AttendanceCreate(BaseModel):
+    student_id: str
+    course_id: str
+    date: str
+    status: str
+
+
+class GradeCreate(BaseModel):
+    student_id: str
+    course_id: str
+    grading_period: str
+    grade: str

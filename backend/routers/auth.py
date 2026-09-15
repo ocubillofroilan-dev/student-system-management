@@ -1,7 +1,6 @@
 """
 routers/auth.py — signup and login. These are the only two routes
-in the whole app that don't require an existing token (obviously —
-you need login to GET a token in the first place).
+in the whole app that don't require an existing token.
 """
 from fastapi import APIRouter, HTTPException, status
 
@@ -23,6 +22,10 @@ def _to_user_out(row: dict) -> UserOut:
         year_level=row.get("year_level"),
         department=row.get("department"),
         course=row.get("course"),
+        birthdate=row.get("birthdate"),
+        gender=row.get("gender"),
+        photo_id=row.get("photo_id"),
+        created_at=row.get("created_at"),
     )
 
 
@@ -58,6 +61,7 @@ def signup(data: SignupRequest):
 
     token = create_access_token(user_id=created["id"], role=created["role"])
     return TokenResponse(access_token=token, user=_to_user_out(created))
+
 
 @router.post("/login", response_model=TokenResponse)
 def login(data: LoginRequest):
