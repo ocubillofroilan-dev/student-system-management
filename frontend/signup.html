@@ -27,7 +27,6 @@
 
     <form id="signupForm" novalidate class="space-y-4">
 
-      <!-- Role toggle: radio inputs, visually styled as a segmented control -->
       <div>
         <label class="block text-sm font-semibold text-navy-dark mb-1">I am a</label>
         <div class="flex rounded-md overflow-hidden border border-navy">
@@ -67,11 +66,12 @@
         </div>
         <div>
           <label for="department" class="block text-sm font-semibold text-navy-dark mb-1">Department</label>
-          <input type="text" id="department" required placeholder="e.g. College of Computing" class="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+          <select id="department" required class="w-full border border-border rounded-md px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+            <option value="">Choose…</option>
+          </select>
         </div>
       </div>
 
-      <!-- Student-only fields, hidden by auth.js when "Teacher" is selected -->
       <div id="studentFields" class="grid md:grid-cols-2 gap-4">
         <div>
           <label for="yearLevel" class="block text-sm font-semibold text-navy-dark mb-1">Year Level</label>
@@ -86,7 +86,9 @@
         </div>
         <div>
           <label for="course" class="block text-sm font-semibold text-navy-dark mb-1">Course / Program</label>
-          <input type="text" id="course" placeholder="e.g. BS Computer Science" class="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+          <select id="course" class="w-full border border-border rounded-md px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+            <option value="">Choose a department first…</option>
+          </select>
         </div>
       </div>
 
@@ -115,6 +117,7 @@
 </div>
 
 <script src="js/api.js"></script>
+<script src="js/colleges.js"></script>
 <script src="js/auth.js"></script>
 </body>
 </html>
