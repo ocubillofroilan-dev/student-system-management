@@ -1,3 +1,8 @@
+/**
+ * auth.js — handles the login form (login.html) and signup form (signup.html).
+ * Requires colleges.js loaded first for the department/program dropdowns.
+ */
+
 function showError(boxId, message) {
   const box = document.getElementById(boxId);
   box.textContent = message;
@@ -46,9 +51,19 @@ if (signupForm) {
   roleInputs.forEach((input) => input.addEventListener("change", toggleStudentFields));
   toggleStudentFields();
 
+  const departmentSelect = document.getElementById("department");
+  const courseSelect = document.getElementById("course");
+  if (departmentSelect && courseSelect) {
+    populateDepartmentDropdown(departmentSelect);
+    departmentSelect.addEventListener("change", () => {
+      populateProgramDropdown(courseSelect, departmentSelect.value);
+    });
+  }
+
   signupForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     hideError("signupError");
+
     const role = document.querySelector('input[name="role"]:checked').value;
     const password = document.getElementById("signupPassword").value;
     const confirm_password = document.getElementById("signupConfirmPassword").value;
@@ -71,13 +86,14 @@ if (signupForm) {
       password,
       confirm_password,
       year_level: role === "student" ? document.getElementById("yearLevel").value : null,
-      department: document.getElementById("department").value.trim(),
-      course: role === "student" ? document.getElementById("course").value.trim() : null,
+      department: document.getElementById("department").value,
+      course: role === "student" ? document.getElementById("course").value : null,
     };
 
     const button = document.getElementById("signupButton");
     button.disabled = true;
     button.textContent = "Creating account...";
+
     try {
       const data = await window.api.post("/auth/signup", payload);
       window.api.saveSession(data.access_token, data.user);
