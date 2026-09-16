@@ -1,6 +1,7 @@
 /**
  * auth.js — handles the login form (login.html) and signup form (signup.html).
- * Requires colleges.js loaded first for the department/program dropdowns.
+ * Signup's Department/Course fields use the searchable dropdown component
+ * from colleges.js, so colleges.js must load before this file.
  */
 
 function showError(boxId, message) {
@@ -13,16 +14,20 @@ function hideError(boxId) {
   document.getElementById(boxId).classList.add("hidden");
 }
 
+// ---------- LOGIN ----------
 const loginForm = document.getElementById("loginForm");
 if (loginForm) {
   loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     hideError("loginError");
+
     const id_number = document.getElementById("loginId").value.trim();
     const password = document.getElementById("loginPassword").value;
     const button = document.getElementById("loginButton");
+
     button.disabled = true;
     button.textContent = "Signing in...";
+
     try {
       const data = await window.api.post("/auth/login", { id_number, password });
       window.api.saveSession(data.access_token, data.user);
@@ -36,6 +41,7 @@ if (loginForm) {
   });
 }
 
+// ---------- SIGNUP ----------
 const signupForm = document.getElementById("signupForm");
 if (signupForm) {
   const roleInputs = document.querySelectorAll('input[name="role"]');
@@ -44,21 +50,24 @@ if (signupForm) {
   function toggleStudentFields() {
     const role = document.querySelector('input[name="role"]:checked').value;
     studentFields.classList.toggle("hidden", role !== "student");
-    studentFields.querySelectorAll("select").forEach((el) => {
-      el.required = role === "student";
-    });
   }
   roleInputs.forEach((input) => input.addEventListener("change", toggleStudentFields));
   toggleStudentFields();
 
-  const departmentSelect = document.getElementById("department");
-  const courseSelect = document.getElementById("course");
-  if (departmentSelect && courseSelect) {
-    populateDepartmentDropdown(departmentSelect);
-    departmentSelect.addEventListener("change", () => {
-      populateProgramDropdown(courseSelect, departmentSelect.value);
-    });
-  }
+  // Searchable Department / Course dropdowns
+  let courseDropdown = createSearchableDropdown(
+    "courseDropdown", [], "Choose a department first…", () => {}
+  );
+  const departmentDropdown = createSearchableDropdown(
+    "departmentDropdown",
+    COLLEGES.map((c) => ({ value: c.name, label: `${c.code} — ${c.name}` })),
+    "Choose…",
+    (deptName) => {
+      const college = COLLEGES.find((c) => c.name === deptName);
+      const programs = college ? college.programs.map((p) => ({ value: p, label: p })) : [];
+      courseDropdown = createSearchableDropdown("courseDropdown", programs, "Choose…", () => {});
+    }
+  );
 
   signupForm.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -77,6 +86,16 @@ if (signupForm) {
       return;
     }
 
+    const department = departmentDropdown.getValue();
+    if (!department) {
+      showError("signupError", "Please choose a department.");
+      return;
+    }
+    if (role === "student" && !courseDropdown.getValue()) {
+      showError("signupError", "Please choose a course/program.");
+      return;
+    }
+
     const payload = {
       role,
       first_name: document.getElementById("firstName").value.trim(),
@@ -86,8 +105,8 @@ if (signupForm) {
       password,
       confirm_password,
       year_level: role === "student" ? document.getElementById("yearLevel").value : null,
-      department: document.getElementById("department").value,
-      course: role === "student" ? document.getElementById("course").value : null,
+      department,
+      course: role === "student" ? courseDropdown.getValue() : null,
     };
 
     const button = document.getElementById("signupButton");
