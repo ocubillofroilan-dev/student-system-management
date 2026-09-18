@@ -8,5 +8,48 @@
 
 body { font-family: var(--font-body); }
 
+/* Role-based visibility toggled by guard.js (adds role-teacher / role-student to <body>) */
+.teacher-only { display: none; }
+.student-only { display: none; }
+body.role-teacher .teacher-only { display: revert; }
+body.role-student .student-only { display: revert; }
+
+/* Bulletin board announcement — the gold left accent stripe */
+.bulletin-item { position: relative; }
+.bulletin-item::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: #C6A15B; /* gold */
+}
+
+/* Attendance status pill */
+.status-pill {
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  padding: .2rem .55rem;
+  border-radius: 1rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  display: inline-block;
+}
+.status-pill.present { background: #E4F3EA; color: #2F8F5B; }
+.status-pill.absent  { background: #FBE8E6; color: #C4453A; }
+.status-pill.late    { background: #FBF1DA; color: #B8791A; }
+
+/* Student / Teacher role badge in the navbar */
+.role-badge {
+  font-family: var(--font-mono);
+  font-size: .68rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: .25rem .55rem;
+  border-radius: .25rem;
+}
+.role-badge.student { background: #E7ECF6; color: #1B2A52; }
+.role-badge.teacher { background: #FBF1DA; color: #B8791A; }
+
+/* Current-page highlight in the app navbar, set by guard.js */
 .app-navbar .nav-link { color: rgba(255,255,255,0.7); }
 .app-navbar .nav-link.active { color: #fff; font-weight: 600; }
