@@ -24,7 +24,7 @@
       el.textContent = user.id_number;
     });
     document.querySelectorAll("[data-user-role]").forEach((el) => {
-      el.textContent = user.role === "teacher" ? "Teacher" : "Student";
+      el.textContent = user.role === "teacher" ? "Professor" : "Student";
       el.classList.add("role-badge", user.role);
     });
     document.querySelectorAll("[data-logout]").forEach((el) => {

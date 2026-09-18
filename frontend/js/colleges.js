@@ -1,8 +1,7 @@
 /**
- * colleges.js — college/department + program data, plus a reusable
- * searchable custom dropdown component (native <select> can't be
- * restyled with a max-height + search box, so this builds one from
- * plain divs instead).
+ * colleges.js — college/department + program data, plus two dropdown
+ * builders: simple <select> population (used on profile.html's edit
+ * form) and a searchable custom dropdown component (used on signup.html).
  */
 const COLLEGES = [
   { code: "CCS", name: "College of Computing Studies", programs: ["BS Computer Science", "BS Information Technology", "BS Information Systems"] },
@@ -22,12 +21,25 @@ const COLLEGES = [
   { code: "DOY", name: "Department of Yearning", programs: ["BS Computer Engi-Yearning", "BS Rebound and Technology", "BS Backburner Psychology", "BS Dee Makausad Administration", "Bachelor of Situationship Management", "Bachelor of Moving On", "Bachelor of Delulu Studies", "Bachelor of Waiting for the Right One", "Bachelor of Commitment Issues"] },
 ];
 
-/**
- * Turns a plain <div id="..."></div> into a searchable custom dropdown.
- * options: array of {value, label} objects
- * onSelect: function(value) called whenever the user picks an option
- * Returns an object with .setValue(value) and .getValue() for external control.
- */
+// Used by profile.html's edit form (plain <select> elements)
+function populateDepartmentDropdown(selectEl) {
+  selectEl.innerHTML =
+    `<option value="">Choose…</option>` +
+    COLLEGES.map((c) => `<option value="${c.name}">${c.code} — ${c.name}</option>`).join("");
+}
+
+function populateProgramDropdown(selectEl, departmentName) {
+  const college = COLLEGES.find((c) => c.name === departmentName);
+  if (!college) {
+    selectEl.innerHTML = `<option value="">Choose a department first…</option>`;
+    return;
+  }
+  selectEl.innerHTML =
+    `<option value="">Choose…</option>` +
+    college.programs.map((p) => `<option value="${p}">${p}</option>`).join("");
+}
+
+// Used by signup.html's searchable custom dropdown
 function createSearchableDropdown(containerId, options, placeholder, onSelect) {
   const container = document.getElementById(containerId);
   let selectedValue = "";

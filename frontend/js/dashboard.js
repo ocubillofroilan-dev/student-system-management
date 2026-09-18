@@ -19,7 +19,7 @@ async function loadComments(announcementId, listEl) {
     listEl.innerHTML = comments.map((c) => `
       <div class="text-sm border-t border-border pt-2 mt-2 first:border-t-0 first:mt-0 first:pt-0">
         <span class="font-semibold">${c.author_name}</span>
-        <span class="text-xs text-muted">${c.author_role === "teacher" ? "(Faculty)" : "(Student)"} &middot; ${formatDate(c.created_at)}</span>
+        <span class="text-xs text-muted">${c.author_role === "teacher" ? "(Professor)" : "(Student)"} &middot; ${formatDate(c.created_at)}</span>
         <p class="mb-0 mt-0.5">${c.body}</p>
       </div>
     `).join("");

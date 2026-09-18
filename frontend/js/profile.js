@@ -36,10 +36,10 @@ function renderView(p) {
 
 function renderIdCard(p) {
   document.querySelector('[data-id="fullName"]').textContent = `${p.first_name} ${p.last_name}`;
-  document.querySelector('[data-id="role"]').textContent = p.role === "teacher" ? "Faculty" : "Student";
+  document.querySelector('[data-id="role"]').textContent = p.role === "teacher" ? "Professor" : "Student";
   document.querySelector('[data-id="department"]').textContent = p.department || "—";
   document.querySelector('[data-id="courseLabel"]').textContent = p.role === "student" ? "Program" : "Position";
-  document.querySelector('[data-id="course"]').textContent = p.role === "student" ? (p.course || "—") : "Faculty Member";
+  document.querySelector('[data-id="course"]').textContent = p.role === "student" ? (p.course || "—") : "Professor";
   document.querySelector('[data-id="idNumber"]').textContent = p.id_number;
   renderPhoto(document.getElementById("idCardPhotoWrap"), p.photo_id);
 }
@@ -49,7 +49,7 @@ function fillEditForm(p) {
   document.getElementById("pLastName").value = p.last_name || "";
   document.getElementById("pMiddleName").value = p.middle_name || "";
   document.getElementById("pIdNumber").value = p.id_number || "";
-  document.getElementById("pRole").value = p.role === "teacher" ? "Teacher" : "Student";
+  document.getElementById("pRole").value = p.role === "teacher" ? "Professor" : "Student";
   document.getElementById("pBirthdate").value = p.birthdate || "";
   document.getElementById("pGender").value = p.gender || "";
 
