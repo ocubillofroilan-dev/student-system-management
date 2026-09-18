@@ -91,3 +91,6 @@ class GradeCreate(BaseModel):
     course_id: str
     grading_period: str
     grade: str
+
+class CommentCreate(BaseModel):
+    body: str
