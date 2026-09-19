@@ -1,8 +1,10 @@
 /**
- * course.js — students get a read-only course catalog.
- * Teachers additionally see add / edit / delete controls.
+ * course.js — students get a read-only catalog limited to their own
+ * department+program. Teachers manage every course, picking a
+ * department then a specific program via searchable dropdowns.
  */
 let editingCourseId = null;
+let deptDropdown, progDropdown;
 
 async function loadCourses() {
   const tbody = document.getElementById("courseTableBody");
@@ -16,7 +18,7 @@ async function loadCourses() {
       <tr>
         <td class="px-4 py-3 font-mono">${c.code}</td>
         <td class="px-4 py-3">${c.title}</td>
-        <td class="px-4 py-3">${c.department || "—"}</td>
+        <td class="px-4 py-3">${c.program || "—"}</td>
         <td class="px-4 py-3">${c.units}</td>
         <td class="px-4 py-3">${c.description || "—"}</td>
         <td class="px-4 py-3 text-right teacher-only whitespace-nowrap">
@@ -45,11 +47,17 @@ function fillFormForEdit(course) {
   editingCourseId = course.id;
   document.getElementById("courseCode").value = course.code;
   document.getElementById("courseTitle").value = course.title;
-  document.getElementById("courseDepartment").value = course.department || "";
   document.getElementById("courseUnits").value = course.units;
   document.getElementById("courseDescription").value = course.description || "";
   document.getElementById("courseFormTitle").textContent = "Edit Course";
   document.getElementById("courseCancelEdit").classList.remove("hidden");
+
+  deptDropdown.setValue(course.department || "");
+  const college = COLLEGES.find((c) => c.name === course.department);
+  const programs = college ? college.programs.map((p) => ({ value: p, label: p })) : [];
+  progDropdown = createSearchableDropdown("courseProgDropdown", programs, "Choose…", () => {});
+  progDropdown.setValue(course.program || "");
+
   document.getElementById("courseCode")?.scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
@@ -58,38 +66,63 @@ function resetCourseForm() {
   document.getElementById("courseForm").reset();
   document.getElementById("courseFormTitle").textContent = "Add Course";
   document.getElementById("courseCancelEdit").classList.add("hidden");
+  deptDropdown.setValue("");
+  progDropdown = createSearchableDropdown("courseProgDropdown", [], "Choose a department first…", () => {});
 }
 
-const courseForm = document.getElementById("courseForm");
-if (courseForm) {
-  courseForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const errorBox = document.getElementById("courseError");
-    errorBox.classList.add("hidden");
+document.addEventListener("DOMContentLoaded", () => {
+  loadCourses();
 
-    const payload = {
-      code: document.getElementById("courseCode").value.trim(),
-      title: document.getElementById("courseTitle").value.trim(),
-      department: document.getElementById("courseDepartment").value.trim(),
-      units: parseInt(document.getElementById("courseUnits").value, 10) || 0,
-      description: document.getElementById("courseDescription").value.trim(),
-    };
-
-    try {
-      if (editingCourseId) {
-        await window.api.put(`/courses/${editingCourseId}`, payload);
-      } else {
-        await window.api.post("/courses", payload);
+  if (document.getElementById("courseDeptDropdown")) {
+    progDropdown = createSearchableDropdown("courseProgDropdown", [], "Choose a department first…", () => {});
+    deptDropdown = createSearchableDropdown(
+      "courseDeptDropdown",
+      COLLEGES.map((c) => ({ value: c.name, label: `${c.code} — ${c.name}` })),
+      "Choose…",
+      (deptName) => {
+        const college = COLLEGES.find((c) => c.name === deptName);
+        const programs = college ? college.programs.map((p) => ({ value: p, label: p })) : [];
+        progDropdown = createSearchableDropdown("courseProgDropdown", programs, "Choose…", () => {});
       }
-      resetCourseForm();
-      loadCourses();
-    } catch (err) {
-      errorBox.textContent = err.message;
-      errorBox.classList.remove("hidden");
-    }
-  });
+    );
+  }
 
-  document.getElementById("courseCancelEdit").addEventListener("click", resetCourseForm);
-}
+  const courseForm = document.getElementById("courseForm");
+  if (courseForm) {
+    courseForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const errorBox = document.getElementById("courseError");
+      errorBox.classList.add("hidden");
 
-document.addEventListener("DOMContentLoaded", loadCourses);
+      const payload = {
+        code: document.getElementById("courseCode").value.trim(),
+        title: document.getElementById("courseTitle").value.trim(),
+        department: deptDropdown.getValue(),
+        program: progDropdown.getValue(),
+        units: parseInt(document.getElementById("courseUnits").value, 10) || 0,
+        description: document.getElementById("courseDescription").value.trim(),
+      };
+
+      if (!payload.department || !payload.program) {
+        errorBox.textContent = "Please choose both a department and a program.";
+        errorBox.classList.remove("hidden");
+        return;
+      }
+
+      try {
+        if (editingCourseId) {
+          await window.api.put(`/courses/${editingCourseId}`, payload);
+        } else {
+          await window.api.post("/courses", payload);
+        }
+        resetCourseForm();
+        loadCourses();
+      } catch (err) {
+        errorBox.textContent = err.message;
+        errorBox.classList.remove("hidden");
+      }
+    });
+
+    document.getElementById("courseCancelEdit").addEventListener("click", resetCourseForm);
+  }
+});

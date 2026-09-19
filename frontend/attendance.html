@@ -9,64 +9,52 @@
 <script src="js/tailwind-config.js"></script>
 </head>
 <body class="bg-[#FAF6EC] text-ink font-body">
+
 <div id="navbar-slot"></div>
 
 <main class="max-w-6xl mx-auto px-4 py-8">
   <h1 class="font-display text-xl font-semibold mb-1">Attendance</h1>
-  <p class="text-muted text-sm mb-6 student-only">Read-only — this is your personal attendance history.</p>
-  <p class="text-muted text-sm mb-6 teacher-only">Record attendance for any student, in any course.</p>
 
-  <div class="grid lg:grid-cols-[2fr_1fr] gap-8">
-
+  <!-- ===== STUDENT VIEW: simple read-only history ===== -->
+  <div class="student-only">
+    <p class="text-muted text-sm mb-6">Read-only — this is your personal attendance history.</p>
     <div class="bg-white border border-border rounded-lg overflow-x-auto">
       <table class="w-full text-sm">
         <thead class="bg-navy-dark text-white">
           <tr class="font-mono text-xs uppercase tracking-wide">
             <th class="text-left px-4 py-3 font-medium">Date</th>
-            <th class="text-left px-4 py-3 font-medium teacher-only">Student</th>
             <th class="text-left px-4 py-3 font-medium">Course</th>
             <th class="text-left px-4 py-3 font-medium">Status</th>
           </tr>
         </thead>
         <tbody id="attendanceTableBody" class="divide-y divide-border">
-          <tr><td colspan="4" class="text-center text-muted py-8">Loading attendance…</td></tr>
+          <tr><td colspan="3" class="text-center text-muted py-8">Loading attendance…</td></tr>
         </tbody>
       </table>
     </div>
+  </div>
 
-    <div class="teacher-only">
-      <div class="bg-white border border-border rounded-lg">
-        <div class="border-b border-border px-4 py-3">
-          <h2 class="font-display text-base font-semibold m-0">Record Attendance</h2>
-        </div>
-        <div class="p-4">
-          <div id="attendanceError" class="hidden bg-[#FBE8E6] border border-[#F3C7C2] text-[#8A2E26] rounded-md px-3 py-2 mb-3 text-sm"></div>
-          <div id="attendanceSuccess" class="hidden bg-[#E4F3EA] border border-[#BEE3CD] text-success rounded-md px-3 py-2 mb-3 text-sm"></div>
-          <form id="attendanceForm" class="space-y-3">
-            <div>
-              <label for="attStudent" class="block text-sm font-semibold text-navy-dark mb-1">Student</label>
-              <select id="attStudent" required class="w-full border border-border rounded-md px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"></select>
-            </div>
-            <div>
-              <label for="attCourse" class="block text-sm font-semibold text-navy-dark mb-1">Course</label>
-              <select id="attCourse" required class="w-full border border-border rounded-md px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"></select>
-            </div>
-            <div>
-              <label for="attDate" class="block text-sm font-semibold text-navy-dark mb-1">Date</label>
-              <input type="date" id="attDate" required class="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
-            </div>
-            <div>
-              <label for="attStatus" class="block text-sm font-semibold text-navy-dark mb-1">Status</label>
-              <select id="attStatus" required class="w-full border border-border rounded-md px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
-                <option value="present">Present</option>
-                <option value="late">Late</option>
-                <option value="absent">Absent</option>
-              </select>
-            </div>
-            <button type="submit" class="w-full bg-gold text-navy-dark font-semibold rounded-md py-2 hover:bg-gold-light transition">Save Attendance</button>
-          </form>
-        </div>
+  <!-- ===== TEACHER VIEW: course-scoped calendar ===== -->
+  <div class="teacher-only">
+    <p class="text-muted text-sm mb-4">Pick a course, then double-click a date to view or edit that day's attendance.</p>
+
+    <div class="flex flex-wrap items-center gap-3 mb-6">
+      <select id="attCourseSelect" class="border border-border rounded-md px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+        <option value="">Choose a course…</option>
+      </select>
+      <button id="btnTotalAttendance" class="border border-navy text-navy rounded-md px-4 py-2 text-sm font-semibold hover:bg-navy hover:text-white transition">Total Attendance</button>
+    </div>
+
+    <div id="calendarSection" class="hidden bg-white border border-border rounded-lg p-4">
+      <div class="flex items-center justify-between mb-4">
+        <button id="prevMonth" class="border border-border rounded-md px-3 py-1 hover:bg-[#FAF6EC] transition">&larr;</button>
+        <div id="calendarMonthLabel" class="font-display font-semibold"></div>
+        <button id="nextMonth" class="border border-border rounded-md px-3 py-1 hover:bg-[#FAF6EC] transition">&rarr;</button>
       </div>
+      <div class="grid grid-cols-7 gap-1 text-center text-xs text-muted font-mono uppercase mb-1">
+        <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+      </div>
+      <div id="calendarGrid" class="grid grid-cols-7 gap-1"></div>
     </div>
   </div>
 </main>
@@ -75,9 +63,47 @@
   <div class="max-w-6xl mx-auto px-4 text-center text-sm text-muted">&copy; 2026 Enchong Dee University — Student System Management</div>
 </footer>
 
+<!-- ===== Date detail modal ===== -->
+<div id="dateModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+  <div class="bg-white rounded-lg max-w-md w-full max-h-[80vh] flex flex-col">
+    <div class="flex items-center justify-between px-5 py-3 border-b border-border">
+      <h3 id="dateModalTitle" class="font-display font-semibold">—</h3>
+      <button id="btnCloseDateModal" class="text-muted hover:text-ink">&times;</button>
+    </div>
+    <div id="dateModalBody" class="px-5 py-3 overflow-y-auto flex-1"></div>
+    <div class="px-5 py-3 border-t border-border flex justify-end gap-2">
+      <button id="btnEditDate" class="border border-navy text-navy rounded-md px-4 py-1.5 text-sm font-semibold hover:bg-navy hover:text-white transition">Edit</button>
+      <button id="btnSaveDate" class="hidden bg-gold text-navy-dark rounded-md px-4 py-1.5 text-sm font-semibold hover:bg-gold-light transition">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Total Attendance modal ===== -->
+<div id="totalModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+  <div class="bg-white rounded-lg max-w-lg w-full max-h-[80vh] flex flex-col">
+    <div class="flex items-center justify-between px-5 py-3 border-b border-border">
+      <h3 class="font-display font-semibold">Total Attendance</h3>
+      <button id="btnCloseTotalModal" class="text-muted hover:text-ink">&times;</button>
+    </div>
+    <div class="px-5 py-3">
+      <input type="month" id="totalMonthPicker" class="border border-border rounded-md px-3 py-2">
+    </div>
+    <div class="overflow-y-auto flex-1 px-5 pb-4">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-left text-xs text-muted uppercase font-mono">
+            <th class="py-2">Student</th><th class="py-2 text-center">Present</th><th class="py-2 text-center">Late</th><th class="py-2 text-center">Absent</th>
+          </tr>
+        </thead>
+        <tbody id="totalAttendanceBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 <script src="js/api.js"></script>
 <script src="js/navbar.js"></script>
 <script src="js/guard.js"></script>
-<script src="js/dashboard.js"></script>
+<script src="js/attendance.js"></script>
 </body>
 </html>

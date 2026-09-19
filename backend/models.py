@@ -67,6 +67,7 @@ class CourseCreate(BaseModel):
     code: str
     title: str
     department: Optional[str] = ""
+    program: Optional[str] = ""
     units: Optional[int] = 3
     description: Optional[str] = ""
 
