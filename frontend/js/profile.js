@@ -37,10 +37,11 @@ function renderView(p) {
 function renderIdCard(p) {
   document.querySelector('[data-id="fullName"]').textContent = `${p.first_name} ${p.last_name}`;
   document.querySelector('[data-id="department"]').textContent = p.department || "—";
-  document.querySelector('[data-id="course"]').textContent = p.role === "student" ? (p.course || "—") : "N/A";
-  document.querySelector('[data-id="role"]').textContent = p.role === "teacher" ? "Professor" : "Student";
-  document.querySelector('[data-id="roleLabel"]').textContent = p.role === "teacher" ? "Professor" : "Student";
   document.querySelector('[data-id="idNumber"]').textContent = p.id_number;
+  document.querySelector('[data-id="roleLabel"]').textContent = p.role === "teacher" ? "Professor" : "Student";
+  if (p.role === "student") {
+    document.querySelector('[data-id="yearLevel"]').textContent = p.year_level || "—";
+  }
   renderPhoto(document.getElementById("idCardPhotoWrap"), p.photo_id);
 }
 
