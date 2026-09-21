@@ -61,21 +61,25 @@ async function loadStudentSchedule() {
   const tbody = document.getElementById("studentScheduleBody");
   if (!tbody) return;
   try {
-    const items = await window.api.get("/schedule");
+    let items = await window.api.get("/schedule");
+    items.sort((a, b) => DAY_ORDER.indexOf(a.day_of_week) - DAY_ORDER.indexOf(b.day_of_week));
+
     if (!items.length) {
-      tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-8">No schedule entries for your program yet.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-8">No schedule for your enrolled courses yet.</td></tr>`;
       return;
     }
     tbody.innerHTML = items.map((s) => `
       <tr>
+        <td class="px-4 py-3">${s.day_of_week}</td>
+        <td class="px-4 py-3 font-mono">${s.start_time} – ${s.end_time}</td>
         <td class="px-4 py-3 font-mono">${s.course_code || ""}</td>
         <td class="px-4 py-3">${s.course_title || ""}</td>
-        <td class="px-4 py-3">${s.course_program || "—"}</td>
+        <td class="px-4 py-3">${s.room || "—"}</td>
         <td class="px-4 py-3">${s.professor_name || "—"}</td>
       </tr>
     `).join("");
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-8">Couldn't load schedule (${err.message}).</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-8">Couldn't load schedule (${err.message}).</td></tr>`;
   }
 }
 

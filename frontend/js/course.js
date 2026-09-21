@@ -1,13 +1,79 @@
 /**
- * course.js — students get a read-only catalog limited to their own
- * department+program. Teachers manage every course, picking a
- * department then a specific program via searchable dropdowns.
+ * course.js — teachers manage the full catalog (unchanged). Students
+ * see "My Courses" (enrolled only) plus "Available Courses" they can
+ * enroll into; enrolling removes a course from the available list.
  */
 let editingCourseId = null;
 let deptDropdown, progDropdown;
 
+// ---------- Student: My Courses ----------
+async function loadMyCourses() {
+  const tbody = document.getElementById("myCoursesBody");
+  if (!tbody) return;
+  try {
+    const courses = await window.api.get("/courses");
+    if (!courses.length) {
+      tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-6">You haven't enrolled in any courses yet.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = courses.map((c) => `
+      <tr>
+        <td class="px-4 py-3 font-mono">${c.code}</td>
+        <td class="px-4 py-3">${c.title}</td>
+        <td class="px-4 py-3">${c.program || "—"}</td>
+        <td class="px-4 py-3">${c.units}</td>
+      </tr>
+    `).join("");
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-6">Couldn't load your courses (${err.message}).</td></tr>`;
+  }
+}
+
+// ---------- Student: Available Courses ----------
+async function loadAvailableCourses() {
+  const tbody = document.getElementById("availableCoursesBody");
+  if (!tbody) return;
+  try {
+    const courses = await window.api.get("/courses/available");
+    if (!courses.length) {
+      tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-6">No more courses available to enroll in.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = courses.map((c) => `
+      <tr>
+        <td class="px-4 py-3 font-mono">${c.code}</td>
+        <td class="px-4 py-3">${c.title}</td>
+        <td class="px-4 py-3">${c.program || "—"}</td>
+        <td class="px-4 py-3">${c.units}</td>
+        <td class="px-4 py-3 text-right">
+          <button class="text-sm bg-gold text-navy-dark font-semibold rounded px-3 py-1 hover:bg-gold-light transition" data-enroll-id="${c.id}">Enroll</button>
+        </td>
+      </tr>
+    `).join("");
+
+    tbody.querySelectorAll("[data-enroll-id]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const errorBox = document.getElementById("availableError");
+        errorBox.classList.add("hidden");
+        try {
+          await window.api.post(`/courses/${btn.dataset.enrollId}/enroll`, {});
+          loadMyCourses();
+          loadAvailableCourses();
+        } catch (err) {
+          errorBox.textContent = err.message;
+          errorBox.classList.remove("hidden");
+        }
+      });
+    });
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-6">Couldn't load available courses (${err.message}).</td></tr>`;
+  }
+}
+
+// ---------- Teacher: manage catalog ----------
 async function loadCourses() {
   const tbody = document.getElementById("courseTableBody");
+  if (!tbody) return;
   try {
     const courses = await window.api.get("/courses");
     if (!courses.length) {
@@ -21,7 +87,7 @@ async function loadCourses() {
         <td class="px-4 py-3">${c.program || "—"}</td>
         <td class="px-4 py-3">${c.units}</td>
         <td class="px-4 py-3">${c.description || "—"}</td>
-        <td class="px-4 py-3 text-right teacher-only whitespace-nowrap">
+        <td class="px-4 py-3 text-right whitespace-nowrap">
           <button class="text-sm border border-navy text-navy rounded px-2 py-1 mr-1 hover:bg-navy hover:text-white transition" data-edit='${JSON.stringify(c)}'>Edit</button>
           <button class="text-sm border border-danger text-danger rounded px-2 py-1 hover:bg-danger hover:text-white transition" data-delete-id="${c.id}">Delete</button>
         </td>
@@ -71,6 +137,8 @@ function resetCourseForm() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  loadMyCourses();
+  loadAvailableCourses();
   loadCourses();
 
   if (document.getElementById("courseDeptDropdown")) {
