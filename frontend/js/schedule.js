@@ -1,6 +1,7 @@
 /**
- * schedule.js — read-only weekly schedule for students,
- * add/delete controls for teachers.
+ * schedule.js — teachers get the full manage table + add form.
+ * Students get a simpler course/program/professor list, filtered
+ * server-side to just their own department+program.
  */
 const DAY_ORDER = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
@@ -9,14 +10,20 @@ async function populateCourseDropdown() {
   if (!select) return;
   try {
     const courses = await window.api.get("/courses");
-    select.innerHTML = courses.map((c) => `<option value="${c.id}">${c.code} — ${c.title}</option>`).join("");
+    if (!courses.length) {
+      select.innerHTML = `<option value="">No courses yet — add one on the Courses page first</option>`;
+      return;
+    }
+    select.innerHTML = `<option value="">Choose…</option>` +
+      courses.map((c) => `<option value="${c.id}">${c.code} — ${c.title}${c.program ? " (" + c.program + ")" : ""}</option>`).join("");
   } catch (err) {
-    select.innerHTML = `<option value="">Couldn't load courses</option>`;
+    select.innerHTML = `<option value="">Couldn't load courses (${err.message})</option>`;
   }
 }
 
-async function loadSchedule() {
+async function loadTeacherSchedule() {
   const tbody = document.getElementById("scheduleTableBody");
+  if (!tbody) return;
   try {
     let items = await window.api.get("/schedule");
     items.sort((a, b) => DAY_ORDER.indexOf(a.day_of_week) - DAY_ORDER.indexOf(b.day_of_week));
@@ -32,7 +39,7 @@ async function loadSchedule() {
         <td class="px-4 py-3 font-mono">${s.course_code || ""}</td>
         <td class="px-4 py-3">${s.course_title || ""}</td>
         <td class="px-4 py-3">${s.room || "—"}</td>
-        <td class="px-4 py-3 text-right teacher-only whitespace-nowrap">
+        <td class="px-4 py-3 text-right whitespace-nowrap">
           <button class="text-sm border border-danger text-danger rounded px-2 py-1 hover:bg-danger hover:text-white transition" data-delete-id="${s.id}">Delete</button>
         </td>
       </tr>
@@ -42,11 +49,33 @@ async function loadSchedule() {
       btn.addEventListener("click", async () => {
         if (!confirm("Delete this schedule entry?")) return;
         await window.api.del(`/schedule/${btn.dataset.deleteId}`);
-        loadSchedule();
+        loadTeacherSchedule();
       });
     });
   } catch (err) {
     tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-8">Couldn't load schedule (${err.message}).</td></tr>`;
+  }
+}
+
+async function loadStudentSchedule() {
+  const tbody = document.getElementById("studentScheduleBody");
+  if (!tbody) return;
+  try {
+    const items = await window.api.get("/schedule");
+    if (!items.length) {
+      tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-8">No schedule entries for your program yet.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = items.map((s) => `
+      <tr>
+        <td class="px-4 py-3 font-mono">${s.course_code || ""}</td>
+        <td class="px-4 py-3">${s.course_title || ""}</td>
+        <td class="px-4 py-3">${s.course_program || "—"}</td>
+        <td class="px-4 py-3">${s.professor_name || "—"}</td>
+      </tr>
+    `).join("");
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-8">Couldn't load schedule (${err.message}).</td></tr>`;
   }
 }
 
@@ -65,10 +94,16 @@ if (scheduleForm) {
       room: document.getElementById("scheduleRoom").value.trim(),
     };
 
+    if (!payload.course_id) {
+      errorBox.textContent = "Please choose a course.";
+      errorBox.classList.remove("hidden");
+      return;
+    }
+
     try {
       await window.api.post("/schedule", payload);
       scheduleForm.reset();
-      loadSchedule();
+      loadTeacherSchedule();
     } catch (err) {
       errorBox.textContent = err.message;
       errorBox.classList.remove("hidden");
@@ -78,5 +113,6 @@ if (scheduleForm) {
 
 document.addEventListener("DOMContentLoaded", () => {
   populateCourseDropdown();
-  loadSchedule();
+  loadTeacherSchedule();
+  loadStudentSchedule();
 });
