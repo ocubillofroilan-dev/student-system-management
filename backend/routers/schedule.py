@@ -1,8 +1,7 @@
 """
 routers/schedule.py — teachers manage the full schedule. Students see
-only entries whose course belongs to their own department + program —
-matched loosely (case-insensitive, trimmed), so "BS Computer Science"
-and "bs computer science " still count as the same program.
+schedule entries only for courses they're actually ENROLLED in (via
+the enrollments table), not just courses matching their program.
 """
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -13,31 +12,26 @@ from models import ScheduleCreate
 router = APIRouter(prefix="/schedule", tags=["schedule"])
 
 
-def _normalize(value: str) -> str:
-    return (value or "").strip().lower()
-
-
 @router.get("")
 def list_schedule(current_user: dict = Depends(get_current_user)):
     result = (
         supabase.table("schedules")
-        .select("*, courses(code, title, department, program), users!schedules_created_by_fkey(first_name, last_name)")
+        .select("*, courses(code, title, program), users!schedules_created_by_fkey(first_name, last_name)")
         .order("day_of_week")
         .execute()
     )
 
-    my_dept = _normalize(current_user.get("department"))
-    my_program = _normalize(current_user.get("course"))
+    enrolled_ids = None
+    if current_user["role"] == "student":
+        enrolled = supabase.table("enrollments").select("course_id").eq("student_id", current_user["id"]).execute()
+        enrolled_ids = {row["course_id"] for row in enrolled.data}
 
     out = []
     for row in result.data:
+        if enrolled_ids is not None and row["course_id"] not in enrolled_ids:
+            continue
         course = row.get("courses") or {}
         professor = row.get("users") or {}
-
-        if current_user["role"] == "student":
-            if _normalize(course.get("department")) != my_dept or _normalize(course.get("program")) != my_program:
-                continue
-
         out.append({
             "id": row["id"], "course_id": row["course_id"], "day_of_week": row["day_of_week"],
             "start_time": row["start_time"], "end_time": row["end_time"], "room": row.get("room") or "",
