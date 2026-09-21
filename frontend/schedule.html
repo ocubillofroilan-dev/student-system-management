@@ -9,68 +9,92 @@
 <script src="js/tailwind-config.js"></script>
 </head>
 <body class="bg-[#FAF6EC] text-ink font-body">
+
 <div id="navbar-slot"></div>
 
 <main class="max-w-6xl mx-auto px-4 py-8">
   <h1 class="font-display text-xl font-semibold mb-1">Schedule</h1>
-  <p class="text-muted text-sm mb-6 student-only">Read-only — your teacher manages the class schedule.</p>
-  <p class="text-muted text-sm mb-6 teacher-only">Add or remove class schedule entries below.</p>
 
-  <div class="grid lg:grid-cols-[2fr_1fr] gap-8">
-
+  <!-- ===== STUDENT VIEW: course + professor, no time/day ===== -->
+  <div class="student-only">
+    <p class="text-muted text-sm mb-6">Showing schedule entries that match your own department and program.</p>
     <div class="bg-white border border-border rounded-lg overflow-x-auto">
       <table class="w-full text-sm">
         <thead class="bg-navy-dark text-white">
           <tr class="font-mono text-xs uppercase tracking-wide">
-            <th class="text-left px-4 py-3 font-medium">Day</th>
-            <th class="text-left px-4 py-3 font-medium">Time</th>
             <th class="text-left px-4 py-3 font-medium">Code</th>
             <th class="text-left px-4 py-3 font-medium">Course</th>
-            <th class="text-left px-4 py-3 font-medium">Room</th>
-            <th class="text-right px-4 py-3 font-medium teacher-only">Actions</th>
+            <th class="text-left px-4 py-3 font-medium">Program</th>
+            <th class="text-left px-4 py-3 font-medium">Professor</th>
           </tr>
         </thead>
-        <tbody id="scheduleTableBody" class="divide-y divide-border">
-          <tr><td colspan="6" class="text-center text-muted py-8">Loading schedule…</td></tr>
+        <tbody id="studentScheduleBody" class="divide-y divide-border">
+          <tr><td colspan="4" class="text-center text-muted py-8">Loading schedule…</td></tr>
         </tbody>
       </table>
     </div>
+  </div>
 
-    <div class="teacher-only">
-      <div class="bg-white border border-border rounded-lg">
-        <div class="border-b border-border px-4 py-3">
-          <h2 class="font-display text-base font-semibold m-0">Add Schedule Entry</h2>
-        </div>
-        <div class="p-4">
-          <div id="scheduleError" class="hidden bg-[#FBE8E6] border border-[#F3C7C2] text-[#8A2E26] rounded-md px-3 py-2 mb-3 text-sm"></div>
-          <form id="scheduleForm" class="space-y-3">
-            <div>
-              <label for="scheduleCourse" class="block text-sm font-semibold text-navy-dark mb-1">Course</label>
-              <select id="scheduleCourse" required class="w-full border border-border rounded-md px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"></select>
-            </div>
-            <div>
-              <label for="scheduleDay" class="block text-sm font-semibold text-navy-dark mb-1">Day</label>
-              <select id="scheduleDay" required class="w-full border border-border rounded-md px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
-                <option>Monday</option><option>Tuesday</option><option>Wednesday</option>
-                <option>Thursday</option><option>Friday</option><option>Saturday</option>
-              </select>
-            </div>
-            <div class="grid grid-cols-2 gap-2">
+  <!-- ===== TEACHER VIEW: full manage table + form ===== -->
+  <div class="teacher-only">
+    <p class="text-muted text-sm mb-6">Add or remove class schedule entries below.</p>
+    <div class="grid lg:grid-cols-[2fr_1fr] gap-8">
+      <div class="bg-white border border-border rounded-lg overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-navy-dark text-white">
+            <tr class="font-mono text-xs uppercase tracking-wide">
+              <th class="text-left px-4 py-3 font-medium">Day</th>
+              <th class="text-left px-4 py-3 font-medium">Time</th>
+              <th class="text-left px-4 py-3 font-medium">Code</th>
+              <th class="text-left px-4 py-3 font-medium">Course</th>
+              <th class="text-left px-4 py-3 font-medium">Room</th>
+              <th class="text-right px-4 py-3 font-medium">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="scheduleTableBody" class="divide-y divide-border">
+            <tr><td colspan="6" class="text-center text-muted py-8">Loading schedule…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div>
+        <div class="bg-white border border-border rounded-lg">
+          <div class="border-b border-border px-4 py-3">
+            <h2 class="font-display text-base font-semibold m-0">Add Schedule Entry</h2>
+          </div>
+          <div class="p-4">
+            <div id="scheduleError" class="hidden bg-[#FBE8E6] border border-[#F3C7C2] text-[#8A2E26] rounded-md px-3 py-2 mb-3 text-sm"></div>
+            <form id="scheduleForm" class="space-y-3">
               <div>
-                <label for="scheduleStart" class="block text-sm font-semibold text-navy-dark mb-1">Start</label>
-                <input type="time" id="scheduleStart" required class="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+                <label for="scheduleCourse" class="block text-sm font-semibold text-navy-dark mb-1">Course</label>
+                <select id="scheduleCourse" required class="w-full border border-border rounded-md px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+                  <option value="">Loading courses…</option>
+                </select>
               </div>
               <div>
-                <label for="scheduleEnd" class="block text-sm font-semibold text-navy-dark mb-1">End</label>
-                <input type="time" id="scheduleEnd" required class="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+                <label for="scheduleDay" class="block text-sm font-semibold text-navy-dark mb-1">Day</label>
+                <select id="scheduleDay" required class="w-full border border-border rounded-md px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+                  <option>Monday</option><option>Tuesday</option><option>Wednesday</option>
+                  <option>Thursday</option><option>Friday</option><option>Saturday</option>
+                </select>
               </div>
-            </div>
-            <div>
-              <label for="scheduleRoom" class="block text-sm font-semibold text-navy-dark mb-1">Room</label>
-              <input type="text" id="scheduleRoom" placeholder="e.g. Rm 304" class="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
-            </div>
-            <button type="submit" class="w-full bg-gold text-navy-dark font-semibold rounded-md py-2 hover:bg-gold-light transition">Add to Schedule</button>
-          </form>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label for="scheduleStart" class="block text-sm font-semibold text-navy-dark mb-1">Start</label>
+                  <input type="time" id="scheduleStart" required class="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+                </div>
+                <div>
+                  <label for="scheduleEnd" class="block text-sm font-semibold text-navy-dark mb-1">End</label>
+                  <input type="time" id="scheduleEnd" required class="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+                </div>
+              </div>
+              <div>
+                <label for="scheduleRoom" class="block text-sm font-semibold text-navy-dark mb-1">Room</label>
+                <input type="text" id="scheduleRoom" placeholder="e.g. Rm 304" class="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+              </div>
+              <button type="submit" class="w-full bg-gold text-navy-dark font-semibold rounded-md py-2 hover:bg-gold-light transition">Add to Schedule</button>
+            </form>
+          </div>
         </div>
       </div>
     </div>
@@ -84,6 +108,6 @@
 <script src="js/api.js"></script>
 <script src="js/navbar.js"></script>
 <script src="js/guard.js"></script>
-<script src="js/dashboard.js"></script>
+<script src="js/schedule.js"></script>
 </body>
 </html>
