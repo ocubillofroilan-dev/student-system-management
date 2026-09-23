@@ -1,12 +1,14 @@
 /**
  * profile.js — three modes: View, Edit, ID Card. Status is one plain
- * free-text field, shown/editable for both roles. Year Level shows
- * for students only. "Program" reuses the `course` field for both
- * roles — a student's actual program, or a professor's specialization
- * — same column, different label depending on role. Professors get a
- * "-P" suffix on the ID card's ID number (display-only). Requires
- * colleges.js for the department/program dropdowns, and html2canvas
- * (loaded in profile.html) for the Download ID button.
+ * free-text field for both roles. Year Level shows for BOTH roles now
+ * ("N/A" for professors) so the card has the same row count and same
+ * height regardless of role, keeping the photo in the same position
+ * on every card. "Program" reuses the `course` field for both roles —
+ * a student's actual program, or a professor's specialization — same
+ * column, different label. Professors get a "-P" suffix on the ID
+ * card's ID number (display-only). Requires colleges.js for the
+ * department/program dropdowns, and html2canvas (loaded in
+ * profile.html) for the Download ID button.
  */
 let currentProfile = null;
 let pendingPhoto = null;
@@ -36,9 +38,7 @@ function renderView(p) {
   document.querySelector('[data-view="department"]').textContent = p.department || "—";
   document.querySelector('[data-view="programLabel"]').textContent = p.role === "teacher" ? "Program / Specialization" : "Course / Program";
   document.querySelector('[data-view="course"]').textContent = p.course || "—";
-  if (p.role === "student") {
-    document.querySelector('[data-view="yearLevel"]').textContent = p.year_level || "—";
-  }
+  document.querySelector('[data-view="yearLevel"]').textContent = p.role === "student" ? (p.year_level || "—") : "N/A";
   document.querySelector('[data-view="enrolledSince"]').textContent = fmtDate(p.created_at);
   renderPhoto(document.getElementById("viewPhotoWrap"), p.photo_id);
 }
@@ -46,14 +46,12 @@ function renderView(p) {
 function renderIdCard(p) {
   document.querySelector('[data-id="fullName"]').textContent = `${p.first_name} ${p.last_name}`;
   document.querySelector('[data-id="department"]').textContent = p.department || "—";
+  document.querySelector('[data-id="yearLevel"]').textContent = p.role === "student" ? (p.year_level || "—") : "N/A";
   document.querySelector('[data-id="idNumber"]').textContent = p.role === "teacher" ? `${p.id_number}-P` : p.id_number;
   document.querySelector('[data-id="roleLabel"]').textContent = p.role === "teacher" ? "Professor" : "Student";
   document.querySelector('[data-id="programLabel"]').textContent = p.role === "teacher" ? "Program / Specialization" : "Program";
   document.querySelector('[data-id="program"]').textContent = p.course || "—";
   document.querySelector('[data-id="status"]').textContent = p.status || "—";
-  if (p.role === "student") {
-    document.querySelector('[data-id="yearLevel"]').textContent = p.year_level || "—";
-  }
   renderPhoto(document.getElementById("idCardPhotoWrap"), p.photo_id);
 }
 
@@ -71,13 +69,18 @@ function fillEditForm(p) {
   document.getElementById("pDepartment").value = p.department || "";
 
   const studentBlock = document.getElementById("studentOnlyFields");
+  const teacherBlock = document.getElementById("teacherOnlyFields");
+
   if (p.role === "student") {
     studentBlock.classList.remove("hidden");
+    teacherBlock.classList.add("hidden");
     document.getElementById("pYearLevel").value = p.year_level || "";
     populateProgramDropdown(document.getElementById("pCourse"), p.department);
     document.getElementById("pCourse").value = p.course || "";
   } else {
     studentBlock.classList.add("hidden");
+    teacherBlock.classList.remove("hidden");
+    document.getElementById("pSpecialization").value = p.course || "";
   }
 
   renderPhoto(document.getElementById("editPhotoPreview"), p.photo_id);
@@ -145,6 +148,8 @@ document.getElementById("profileForm").addEventListener("submit", async (e) => {
   if (window.currentUser.role === "student") {
     payload.year_level = document.getElementById("pYearLevel").value;
     payload.course = document.getElementById("pCourse").value;
+  } else {
+    payload.course = document.getElementById("pSpecialization").value.trim();
   }
 
   if (pendingPhoto) {

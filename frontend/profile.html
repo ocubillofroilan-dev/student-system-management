@@ -38,7 +38,7 @@
       <div><span class="text-muted block">Gender</span><span data-view="gender">—</span></div>
       <div><span class="text-muted block">Status</span><span data-view="status">—</span></div>
       <div><span class="text-muted block">Department</span><span data-view="department">—</span></div>
-      <div class="student-only"><span class="text-muted block">Year Level</span><span data-view="yearLevel">—</span></div>
+      <div><span class="text-muted block">Year Level</span><span data-view="yearLevel">—</span></div>
       <div><span class="text-muted block" data-view="programLabel">Course / Program</span><span data-view="course">—</span></div>
       <div><span class="text-muted block">Enrolled Since</span><span data-view="enrolledSince">—</span></div>
     </div>
@@ -127,6 +127,12 @@
         </div>
       </div>
 
+      <!-- Teacher-only -->
+      <div id="teacherOnlyFields" class="hidden">
+        <label for="pSpecialization" class="block text-sm font-semibold text-navy-dark mb-1">Program / Specialization</label>
+        <input type="text" id="pSpecialization" placeholder="e.g. Computer Engineering" class="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+      </div>
+
       <div class="flex gap-3">
         <button type="submit" class="bg-gold text-navy-dark rounded-md px-6 py-2.5 font-semibold hover:bg-gold-light transition">Save Changes</button>
         <button type="button" id="btnCancelEdit" class="border border-muted text-muted rounded-md px-6 py-2.5 hover:bg-muted hover:text-white transition">Cancel</button>
@@ -150,11 +156,11 @@
           </div>
         </div>
 
-        <div class="flex items-center gap-3 px-4 pt-5 pb-2 min-h-[9rem]">
+        <div class="flex items-center gap-3 px-4 pt-5 pb-2">
           <div class="flex-1 space-y-2.5 text-xs">
             <div><div class="text-muted uppercase tracking-wide text-[0.6rem]">Name</div><div class="font-semibold text-sm" data-id="fullName">—</div></div>
             <div><div class="text-muted uppercase tracking-wide text-[0.6rem]">Department</div><div class="font-semibold text-sm" data-id="department">—</div></div>
-            <div class="student-only"><div class="text-muted uppercase tracking-wide text-[0.6rem]">Year Level</div><div class="font-semibold text-sm" data-id="yearLevel">—</div></div>
+            <div><div class="text-muted uppercase tracking-wide text-[0.6rem]">Year Level</div><div class="font-semibold text-sm" data-id="yearLevel">—</div></div>
             <div><div class="text-muted uppercase tracking-wide text-[0.6rem]" data-id="programLabel">Program</div><div class="font-semibold text-sm" data-id="program">—</div></div>
             <div><div class="text-muted uppercase tracking-wide text-[0.6rem]">Status</div><div class="font-semibold text-sm" data-id="status">—</div></div>
             <div><div class="text-muted uppercase tracking-wide text-[0.6rem]">ID Number</div><div class="font-semibold text-sm font-mono" data-id="idNumber">—</div></div>
