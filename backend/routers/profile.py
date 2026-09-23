@@ -10,22 +10,13 @@ from models import ProfileUpdateRequest, UserOut
 
 router = APIRouter(prefix="/profile", tags=["profile"])
 
-
 def _to_user_out(row: dict) -> UserOut:
     return UserOut(
-        id=row["id"],
-        role=row["role"],
-        first_name=row["first_name"],
-        last_name=row["last_name"],
-        middle_name=row.get("middle_name") or "",
-        id_number=row["id_number"],
-        year_level=row.get("year_level"),
-        department=row.get("department"),
-        course=row.get("course"),
-        birthdate=row.get("birthdate"),
-        gender=row.get("gender"),
-        photo_id=row.get("photo_id"),
-        created_at=row.get("created_at"),
+        id=row["id"], role=row["role"], first_name=row["first_name"], last_name=row["last_name"],
+        middle_name=row.get("middle_name") or "", id_number=row["id_number"],
+        year_level=row.get("year_level"), department=row.get("department"), course=row.get("course"),
+        birthdate=row.get("birthdate"), gender=row.get("gender"), status=row.get("status"),
+        photo_id=row.get("photo_id"), created_at=row.get("created_at"),
     )
 
 

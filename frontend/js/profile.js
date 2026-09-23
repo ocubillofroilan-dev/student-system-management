@@ -1,10 +1,12 @@
 /**
- * profile.js — three modes on one page: View (read-only), Edit (the
- * form), and ID Card. Year Level / Course-Program only ever show for
- * students, via the .student-only class already handled by
- * companion.css + guard.js's role class on <body>. Professors get a
- * "-P" suffix appended to their ID number, display-only, on the card.
- * Requires colleges.js loaded first for the department/program dropdowns.
+ * profile.js — three modes: View, Edit, ID Card. Status is one plain
+ * free-text field, shown/editable for both roles. Year Level shows
+ * for students only. "Program" reuses the `course` field for both
+ * roles — a student's actual program, or a professor's specialization
+ * — same column, different label depending on role. Professors get a
+ * "-P" suffix on the ID card's ID number (display-only). Requires
+ * colleges.js for the department/program dropdowns, and html2canvas
+ * (loaded in profile.html) for the Download ID button.
  */
 let currentProfile = null;
 let pendingPhoto = null;
@@ -30,10 +32,12 @@ function renderView(p) {
   document.querySelector('[data-view="idNumber2"]').textContent = p.id_number;
   document.querySelector('[data-view="birthdate"]').textContent = p.birthdate ? fmtDate(p.birthdate) : "—";
   document.querySelector('[data-view="gender"]').textContent = p.gender || "—";
+  document.querySelector('[data-view="status"]').textContent = p.status || "—";
   document.querySelector('[data-view="department"]').textContent = p.department || "—";
+  document.querySelector('[data-view="programLabel"]').textContent = p.role === "teacher" ? "Program / Specialization" : "Course / Program";
+  document.querySelector('[data-view="course"]').textContent = p.course || "—";
   if (p.role === "student") {
     document.querySelector('[data-view="yearLevel"]').textContent = p.year_level || "—";
-    document.querySelector('[data-view="course"]').textContent = p.course || "—";
   }
   document.querySelector('[data-view="enrolledSince"]').textContent = fmtDate(p.created_at);
   renderPhoto(document.getElementById("viewPhotoWrap"), p.photo_id);
@@ -44,6 +48,9 @@ function renderIdCard(p) {
   document.querySelector('[data-id="department"]').textContent = p.department || "—";
   document.querySelector('[data-id="idNumber"]').textContent = p.role === "teacher" ? `${p.id_number}-P` : p.id_number;
   document.querySelector('[data-id="roleLabel"]').textContent = p.role === "teacher" ? "Professor" : "Student";
+  document.querySelector('[data-id="programLabel"]').textContent = p.role === "teacher" ? "Program / Specialization" : "Program";
+  document.querySelector('[data-id="program"]').textContent = p.course || "—";
+  document.querySelector('[data-id="status"]').textContent = p.status || "—";
   if (p.role === "student") {
     document.querySelector('[data-id="yearLevel"]').textContent = p.year_level || "—";
   }
@@ -58,6 +65,7 @@ function fillEditForm(p) {
   document.getElementById("pRole").value = p.role === "teacher" ? "Professor" : "Student";
   document.getElementById("pBirthdate").value = p.birthdate || "";
   document.getElementById("pGender").value = p.gender || "";
+  document.getElementById("pStatus").value = p.status || "";
 
   populateDepartmentDropdown(document.getElementById("pDepartment"));
   document.getElementById("pDepartment").value = p.department || "";
@@ -131,11 +139,14 @@ document.getElementById("profileForm").addEventListener("submit", async (e) => {
     department: document.getElementById("pDepartment").value,
     birthdate: document.getElementById("pBirthdate").value,
     gender: document.getElementById("pGender").value,
+    status: document.getElementById("pStatus").value.trim(),
   };
+
   if (window.currentUser.role === "student") {
     payload.year_level = document.getElementById("pYearLevel").value;
     payload.course = document.getElementById("pCourse").value;
   }
+
   if (pendingPhoto) {
     payload.photo_id = pendingPhoto;
   }
@@ -152,6 +163,15 @@ document.getElementById("profileForm").addEventListener("submit", async (e) => {
     errorBox.textContent = err.message;
     errorBox.classList.remove("hidden");
   }
+});
+
+document.getElementById("btnDownloadId").addEventListener("click", async () => {
+  const card = document.getElementById("idCardCapture");
+  const canvas = await html2canvas(card, { backgroundColor: "#FAF6EC", scale: 2 });
+  const link = document.createElement("a");
+  link.download = `${currentProfile.id_number}-school-id.png`;
+  link.href = canvas.toDataURL("image/png");
+  link.click();
 });
 
 document.addEventListener("DOMContentLoaded", loadProfile);

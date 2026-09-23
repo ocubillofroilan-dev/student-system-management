@@ -37,6 +37,7 @@ class UserOut(BaseModel):
     course: Optional[str] = None
     birthdate: Optional[str] = None
     gender: Optional[str] = None
+    status: Optional[str] = None
     photo_id: Optional[str] = None
     created_at: Optional[str] = None
 
@@ -55,6 +56,7 @@ class ProfileUpdateRequest(BaseModel):
     course: Optional[str] = None
     birthdate: Optional[str] = None
     gender: Optional[str] = None
+    status: Optional[str] = None
     photo_id: Optional[str] = None
 
 
