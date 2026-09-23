@@ -68,8 +68,7 @@
               <th class="text-left px-4 py-3 font-medium">Title</th>
               <th class="text-left px-4 py-3 font-medium">Program</th>
               <th class="text-left px-4 py-3 font-medium">Units</th>
-              <th class="text-left px-4 py-3 font-medium">Description</th>
-              <th class="text-right px-4 py-3 font-medium">Actions</th>
+              <th class="text-right px-4 py-3 font-medium">Action</th>
             </tr>
           </thead>
           <tbody id="courseTableBody" class="divide-y divide-border">
@@ -121,7 +120,27 @@
     </div>
   </div>
 </main>
+<!-- ===== Enroll confirmation ===== -->
+<div id="enrollModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+  <div class="bg-white rounded-lg max-w-sm w-full p-5">
+    <p class="text-sm mb-4">Do you want to enroll in <strong id="enrollModalLabel"></strong>?</p>
+    <div class="flex justify-end gap-2">
+      <button id="btnCancelEnroll" class="border border-muted text-muted rounded-md px-4 py-1.5 text-sm hover:bg-muted hover:text-white transition">Cancel</button>
+      <button id="btnConfirmEnroll" class="bg-gold text-navy-dark rounded-md px-4 py-1.5 text-sm font-semibold hover:bg-gold-light transition">Enroll Now</button>
+    </div>
+  </div>
+</div>
 
+<!-- ===== Remove confirmation ===== -->
+<div id="removeModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+  <div class="bg-white rounded-lg max-w-sm w-full p-5">
+    <p class="text-sm mb-4">Are you sure you want to remove <strong id="removeModalLabel"></strong>?</p>
+    <div class="flex justify-end gap-2">
+      <button id="btnCancelRemove" class="border border-muted text-muted rounded-md px-4 py-1.5 text-sm hover:bg-muted hover:text-white transition">Cancel</button>
+      <button id="btnConfirmRemove" class="bg-danger text-white rounded-md px-4 py-1.5 text-sm font-semibold hover:opacity-90 transition">Remove Course</button>
+    </div>
+  </div>
+</div>
 <footer class="border-t border-border py-6 mt-4">
   <div class="max-w-6xl mx-auto px-4 text-center text-sm text-muted">&copy; 2026 Enchong Dee University — Student System Management</div>
 </footer>

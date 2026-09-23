@@ -1,10 +1,7 @@
 """
-routers/courses.py — teachers see and manage every course. Students no
-longer see courses auto-matched by program; instead they browse ALL
-courses under "available", enroll in the ones they want (supporting
-irregular students who mix programs/years), and "my courses" only
-shows what they've actually enrolled in. Once enrolled, a course drops
-out of the "available" list.
+routers/courses.py — teachers manage the full catalog. Students browse
+"available" courses, enroll, and can also unenroll (remove) a course
+they previously picked, which puts it back into "available".
 """
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -34,7 +31,6 @@ def list_courses(current_user: dict = Depends(get_current_user)):
 def list_available_courses(student: dict = Depends(require_role("student"))):
     enrolled = supabase.table("enrollments").select("course_id").eq("student_id", student["id"]).execute()
     enrolled_ids = {row["course_id"] for row in enrolled.data}
-
     all_courses = supabase.table("courses").select("*").order("code").execute()
     return [c for c in all_courses.data if c["id"] not in enrolled_ids]
 
@@ -42,19 +38,21 @@ def list_available_courses(student: dict = Depends(require_role("student"))):
 @router.post("/{course_id}/enroll")
 def enroll_course(course_id: str, student: dict = Depends(require_role("student"))):
     existing = (
-        supabase.table("enrollments")
-        .select("id")
-        .eq("student_id", student["id"])
-        .eq("course_id", course_id)
-        .execute()
+        supabase.table("enrollments").select("id")
+        .eq("student_id", student["id"]).eq("course_id", course_id).execute()
     )
     if existing.data:
         raise HTTPException(status_code=400, detail="Already enrolled in this course.")
-
     result = supabase.table("enrollments").insert({"student_id": student["id"], "course_id": course_id}).execute()
     if not result.data:
         raise HTTPException(status_code=500, detail="Could not enroll in this course.")
     return result.data[0]
+
+
+@router.delete("/{course_id}/enroll")
+def unenroll_course(course_id: str, student: dict = Depends(require_role("student"))):
+    supabase.table("enrollments").delete().eq("student_id", student["id"]).eq("course_id", course_id).execute()
+    return {"message": "Removed from your courses."}
 
 
 @router.post("")

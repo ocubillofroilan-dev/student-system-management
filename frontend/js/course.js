@@ -1,19 +1,27 @@
 /**
- * course.js — teachers manage the full catalog (unchanged). Students
- * see "My Courses" (enrolled only) plus "Available Courses" they can
- * enroll into; enrolling removes a course from the available list.
+ * course.js
+ * - Teacher: full catalog management (add/edit/delete), department+program
+ *   picked via the searchable dropdowns from colleges.js.
+ * - Student: "My Courses" (enrolled) + "Available Courses" (not yet
+ *   enrolled). Enrolling and removing both go through a confirmation
+ *   modal first, then call the backend.
  */
+
 let editingCourseId = null;
 let deptDropdown, progDropdown;
+let pendingEnrollId = null;
+let pendingRemoveId = null;
 
-// ---------- Student: My Courses ----------
+// ============================================================
+// STUDENT: My Courses
+// ============================================================
 async function loadMyCourses() {
   const tbody = document.getElementById("myCoursesBody");
   if (!tbody) return;
   try {
     const courses = await window.api.get("/courses");
     if (!courses.length) {
-      tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-6">You haven't enrolled in any courses yet.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-6">You haven't enrolled in any courses yet.</td></tr>`;
       return;
     }
     tbody.innerHTML = courses.map((c) => `
@@ -22,14 +30,24 @@ async function loadMyCourses() {
         <td class="px-4 py-3">${c.title}</td>
         <td class="px-4 py-3">${c.program || "—"}</td>
         <td class="px-4 py-3">${c.units}</td>
+        <td class="px-4 py-3 text-right">
+          <button class="text-sm border border-danger text-danger rounded px-3 py-1 hover:bg-danger hover:text-white transition"
+                  data-remove-id="${c.id}" data-remove-label="${c.code} — ${c.title}">Remove</button>
+        </td>
       </tr>
     `).join("");
+
+    tbody.querySelectorAll("[data-remove-id]").forEach((btn) => {
+      btn.addEventListener("click", () => openRemoveModal(btn.dataset.removeId, btn.dataset.removeLabel));
+    });
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-6">Couldn't load your courses (${err.message}).</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-6">Couldn't load your courses (${err.message}).</td></tr>`;
   }
 }
 
-// ---------- Student: Available Courses ----------
+// ============================================================
+// STUDENT: Available Courses
+// ============================================================
 async function loadAvailableCourses() {
   const tbody = document.getElementById("availableCoursesBody");
   if (!tbody) return;
@@ -46,31 +64,68 @@ async function loadAvailableCourses() {
         <td class="px-4 py-3">${c.program || "—"}</td>
         <td class="px-4 py-3">${c.units}</td>
         <td class="px-4 py-3 text-right">
-          <button class="text-sm bg-gold text-navy-dark font-semibold rounded px-3 py-1 hover:bg-gold-light transition" data-enroll-id="${c.id}">Enroll</button>
+          <button class="text-sm bg-gold text-navy-dark font-semibold rounded px-3 py-1 hover:bg-gold-light transition"
+                  data-enroll-id="${c.id}" data-enroll-label="${c.code} — ${c.title}">Enroll</button>
         </td>
       </tr>
     `).join("");
 
     tbody.querySelectorAll("[data-enroll-id]").forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        const errorBox = document.getElementById("availableError");
-        errorBox.classList.add("hidden");
-        try {
-          await window.api.post(`/courses/${btn.dataset.enrollId}/enroll`, {});
-          loadMyCourses();
-          loadAvailableCourses();
-        } catch (err) {
-          errorBox.textContent = err.message;
-          errorBox.classList.remove("hidden");
-        }
-      });
+      btn.addEventListener("click", () => openEnrollModal(btn.dataset.enrollId, btn.dataset.enrollLabel));
     });
   } catch (err) {
     tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-6">Couldn't load available courses (${err.message}).</td></tr>`;
   }
 }
 
-// ---------- Teacher: manage catalog ----------
+// ============================================================
+// STUDENT: Enroll / Remove confirmation modals
+// ============================================================
+function openEnrollModal(courseId, label) {
+  pendingEnrollId = courseId;
+  document.getElementById("enrollModalLabel").textContent = label;
+  document.getElementById("enrollModal").classList.remove("hidden");
+}
+
+function openRemoveModal(courseId, label) {
+  pendingRemoveId = courseId;
+  document.getElementById("removeModalLabel").textContent = label;
+  document.getElementById("removeModal").classList.remove("hidden");
+}
+
+document.getElementById("btnCancelEnroll")?.addEventListener("click", () => {
+  document.getElementById("enrollModal").classList.add("hidden");
+});
+
+document.getElementById("btnConfirmEnroll")?.addEventListener("click", async () => {
+  const errorBox = document.getElementById("availableError");
+  errorBox.classList.add("hidden");
+  try {
+    await window.api.post(`/courses/${pendingEnrollId}/enroll`, {});
+    document.getElementById("enrollModal").classList.add("hidden");
+    loadMyCourses();
+    loadAvailableCourses();
+  } catch (err) {
+    document.getElementById("enrollModal").classList.add("hidden");
+    errorBox.textContent = err.message;
+    errorBox.classList.remove("hidden");
+  }
+});
+
+document.getElementById("btnCancelRemove")?.addEventListener("click", () => {
+  document.getElementById("removeModal").classList.add("hidden");
+});
+
+document.getElementById("btnConfirmRemove")?.addEventListener("click", async () => {
+  await window.api.del(`/courses/${pendingRemoveId}/enroll`);
+  document.getElementById("removeModal").classList.add("hidden");
+  loadMyCourses();
+  loadAvailableCourses();
+});
+
+// ============================================================
+// TEACHER: manage full catalog
+// ============================================================
 async function loadCourses() {
   const tbody = document.getElementById("courseTableBody");
   if (!tbody) return;
@@ -136,6 +191,9 @@ function resetCourseForm() {
   progDropdown = createSearchableDropdown("courseProgDropdown", [], "Choose a department first…", () => {});
 }
 
+// ============================================================
+// Init
+// ============================================================
 document.addEventListener("DOMContentLoaded", () => {
   loadMyCourses();
   loadAvailableCourses();
