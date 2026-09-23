@@ -74,11 +74,15 @@
                 </select>
               </div>
               <div>
-                <label for="scheduleDay" class="block text-sm font-semibold text-navy-dark mb-1">Day</label>
-                <select id="scheduleDay" required class="w-full border border-border rounded-md px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
-                  <option>Monday</option><option>Tuesday</option><option>Wednesday</option>
-                  <option>Thursday</option><option>Friday</option><option>Saturday</option>
-                </select>
+                <label class="block text-sm font-semibold text-navy-dark mb-1">Day(s)</label>
+                <div class="grid grid-cols-2 gap-1 border border-border rounded-md p-2">
+                  <label class="flex items-center gap-2 text-sm"><input type="checkbox" value="Monday" class="schedule-day-check"> Monday</label>
+                  <label class="flex items-center gap-2 text-sm"><input type="checkbox" value="Tuesday" class="schedule-day-check"> Tuesday</label>
+                  <label class="flex items-center gap-2 text-sm"><input type="checkbox" value="Wednesday" class="schedule-day-check"> Wednesday</label>
+                  <label class="flex items-center gap-2 text-sm"><input type="checkbox" value="Thursday" class="schedule-day-check"> Thursday</label>
+                  <label class="flex items-center gap-2 text-sm"><input type="checkbox" value="Friday" class="schedule-day-check"> Friday</label>
+                  <label class="flex items-center gap-2 text-sm"><input type="checkbox" value="Saturday" class="schedule-day-check"> Saturday</label>
+                </div>
               </div>
               <div class="grid grid-cols-2 gap-2">
                 <div>

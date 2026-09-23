@@ -1,7 +1,10 @@
 /**
- * profile.js — three modes on one page: View (read-only), Edit (the form),
- * and ID Card (a rendered digital ID built from the same profile data).
- * Requires colleges.js (for the department/program dropdowns) to load first.
+ * profile.js — three modes on one page: View (read-only), Edit (the
+ * form), and ID Card. Year Level / Course-Program only ever show for
+ * students, via the .student-only class already handled by
+ * companion.css + guard.js's role class on <body>. Professors get a
+ * "-P" suffix appended to their ID number, display-only, on the card.
+ * Requires colleges.js loaded first for the department/program dropdowns.
  */
 let currentProfile = null;
 let pendingPhoto = null;
@@ -28,8 +31,10 @@ function renderView(p) {
   document.querySelector('[data-view="birthdate"]').textContent = p.birthdate ? fmtDate(p.birthdate) : "—";
   document.querySelector('[data-view="gender"]').textContent = p.gender || "—";
   document.querySelector('[data-view="department"]').textContent = p.department || "—";
-  document.querySelector('[data-view="yearLevel"]').textContent = p.role === "student" ? (p.year_level || "—") : "N/A";
-  document.querySelector('[data-view="course"]').textContent = p.role === "student" ? (p.course || "—") : "N/A";
+  if (p.role === "student") {
+    document.querySelector('[data-view="yearLevel"]').textContent = p.year_level || "—";
+    document.querySelector('[data-view="course"]').textContent = p.course || "—";
+  }
   document.querySelector('[data-view="enrolledSince"]').textContent = fmtDate(p.created_at);
   renderPhoto(document.getElementById("viewPhotoWrap"), p.photo_id);
 }
@@ -37,7 +42,7 @@ function renderView(p) {
 function renderIdCard(p) {
   document.querySelector('[data-id="fullName"]').textContent = `${p.first_name} ${p.last_name}`;
   document.querySelector('[data-id="department"]').textContent = p.department || "—";
-  document.querySelector('[data-id="idNumber"]').textContent = p.id_number;
+  document.querySelector('[data-id="idNumber"]').textContent = p.role === "teacher" ? `${p.id_number}-P` : p.id_number;
   document.querySelector('[data-id="roleLabel"]').textContent = p.role === "teacher" ? "Professor" : "Student";
   if (p.role === "student") {
     document.querySelector('[data-id="yearLevel"]').textContent = p.year_level || "—";

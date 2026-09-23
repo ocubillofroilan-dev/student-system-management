@@ -46,10 +46,11 @@ async function loadTeacherSchedule() {
     `).join("");
 
     tbody.querySelectorAll("[data-delete-id]").forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        if (!confirm("Delete this schedule entry?")) return;
-        await window.api.del(`/schedule/${btn.dataset.deleteId}`);
-        loadTeacherSchedule();
+      btn.addEventListener("click", () => {
+        showConfirm("Delete this schedule entry?", async () => {
+          await window.api.del(`/schedule/${btn.dataset.deleteId}`);
+          loadTeacherSchedule();
+        }, { confirmLabel: "Delete", danger: true });
       });
     });
   } catch (err) {
@@ -90,22 +91,27 @@ if (scheduleForm) {
     const errorBox = document.getElementById("scheduleError");
     errorBox.classList.add("hidden");
 
-    const payload = {
-      course_id: document.getElementById("scheduleCourse").value,
-      day_of_week: document.getElementById("scheduleDay").value,
-      start_time: document.getElementById("scheduleStart").value,
-      end_time: document.getElementById("scheduleEnd").value,
-      room: document.getElementById("scheduleRoom").value.trim(),
-    };
+    const course_id = document.getElementById("scheduleCourse").value;
+    const days = Array.from(document.querySelectorAll(".schedule-day-check:checked")).map((el) => el.value);
+    const start_time = document.getElementById("scheduleStart").value;
+    const end_time = document.getElementById("scheduleEnd").value;
+    const room = document.getElementById("scheduleRoom").value.trim();
 
-    if (!payload.course_id) {
+    if (!course_id) {
       errorBox.textContent = "Please choose a course.";
+      errorBox.classList.remove("hidden");
+      return;
+    }
+    if (!days.length) {
+      errorBox.textContent = "Please choose at least one day.";
       errorBox.classList.remove("hidden");
       return;
     }
 
     try {
-      await window.api.post("/schedule", payload);
+      for (const day_of_week of days) {
+        await window.api.post("/schedule", { course_id, day_of_week, start_time, end_time, room });
+      }
       scheduleForm.reset();
       loadTeacherSchedule();
     } catch (err) {
