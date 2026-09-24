@@ -1,7 +1,9 @@
 /**
- * course.js — teacher: full catalog management. Student: My Courses /
- * Available Courses with enroll/remove confirmation modals. Requires
- * modal.js (showConfirm) and colleges.js loaded before this file.
+ * course.js — teacher: full catalog management (add/edit/delete) with
+ * Department/Program picked via searchable dropdowns, now also shows
+ * each course's Professor (the teacher who created it). Student: My
+ * Courses / Available Courses, both showing Professor too, with
+ * enroll/remove confirmation modals (showConfirm from modal.js).
  */
 let editingCourseId = null;
 let deptDropdown, progDropdown;
@@ -14,15 +16,16 @@ async function loadMyCourses() {
   try {
     const courses = await window.api.get("/courses");
     if (!courses.length) {
-      tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-6">You haven't enrolled in any courses yet.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-6">You haven't enrolled in any courses yet.</td></tr>`;
       return;
     }
     tbody.innerHTML = courses.map((c) => `
       <tr>
-        <td class="px-4 py-3 font-mono">${c.code}</td>
-        <td class="px-4 py-3">${c.title}</td>
-        <td class="px-4 py-3">${c.program || "—"}</td>
+        <td class="px-4 py-3 font-mono truncate">${c.code}</td>
+        <td class="px-4 py-3 truncate">${c.title}</td>
+        <td class="px-4 py-3 truncate">${c.program || "—"}</td>
         <td class="px-4 py-3">${c.units}</td>
+        <td class="px-4 py-3 truncate">${c.professor_name || "—"}</td>
         <td class="px-4 py-3 text-right">
           <button class="text-sm border border-danger text-danger rounded px-3 py-1 hover:bg-danger hover:text-white transition"
                   data-remove-id="${c.id}" data-remove-label="${c.code} — ${c.title}">Remove</button>
@@ -34,7 +37,7 @@ async function loadMyCourses() {
       btn.addEventListener("click", () => openRemoveModal(btn.dataset.removeId, btn.dataset.removeLabel));
     });
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-6">Couldn't load your courses (${err.message}).</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-6">Couldn't load your courses (${err.message}).</td></tr>`;
   }
 }
 
@@ -44,15 +47,16 @@ async function loadAvailableCourses() {
   try {
     const courses = await window.api.get("/courses/available");
     if (!courses.length) {
-      tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-6">No more courses available to enroll in.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-6">No more courses available to enroll in.</td></tr>`;
       return;
     }
     tbody.innerHTML = courses.map((c) => `
       <tr>
-        <td class="px-4 py-3 font-mono">${c.code}</td>
-        <td class="px-4 py-3">${c.title}</td>
-        <td class="px-4 py-3">${c.program || "—"}</td>
+        <td class="px-4 py-3 font-mono truncate">${c.code}</td>
+        <td class="px-4 py-3 truncate">${c.title}</td>
+        <td class="px-4 py-3 truncate">${c.program || "—"}</td>
         <td class="px-4 py-3">${c.units}</td>
+        <td class="px-4 py-3 truncate">${c.professor_name || "—"}</td>
         <td class="px-4 py-3 text-right">
           <button class="text-sm bg-gold text-navy-dark font-semibold rounded px-3 py-1 hover:bg-gold-light transition"
                   data-enroll-id="${c.id}" data-enroll-label="${c.code} — ${c.title}">Enroll</button>
@@ -64,7 +68,7 @@ async function loadAvailableCourses() {
       btn.addEventListener("click", () => openEnrollModal(btn.dataset.enrollId, btn.dataset.enrollLabel));
     });
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-6">Couldn't load available courses (${err.message}).</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-6">Couldn't load available courses (${err.message}).</td></tr>`;
   }
 }
 
@@ -99,17 +103,18 @@ async function loadCourses() {
   try {
     const courses = await window.api.get("/courses");
     if (!courses.length) {
-      tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-8">No courses added yet.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-8">No courses added yet.</td></tr>`;
       return;
     }
     tbody.innerHTML = courses.map((c) => `
       <tr>
-        <td class="px-4 py-3 font-mono">${c.code}</td>
-        <td class="px-4 py-3">${c.title}</td>
-        <td class="px-4 py-3">${c.program || "—"}</td>
-        <td class="px-4 py-3">${c.units}</td>
-        <td class="px-4 py-3">${c.description || "—"}</td>
-        <td class="px-4 py-3 text-right whitespace-nowrap">
+        <td class="px-3 py-3 font-mono truncate">${c.code}</td>
+        <td class="px-3 py-3 truncate">${c.title}</td>
+        <td class="px-3 py-3 truncate">${c.program || "—"}</td>
+        <td class="px-3 py-3">${c.units}</td>
+        <td class="px-3 py-3 truncate">${c.professor_name || "—"}</td>
+        <td class="px-3 py-3 truncate">${c.description || "—"}</td>
+        <td class="px-3 py-3 text-right whitespace-nowrap">
           <button class="text-sm border border-navy text-navy rounded px-2 py-1 mr-1 hover:bg-navy hover:text-white transition" data-edit='${JSON.stringify(c)}'>Edit</button>
           <button class="text-sm border border-danger text-danger rounded px-2 py-1 hover:bg-danger hover:text-white transition" data-delete-id="${c.id}" data-delete-label="${c.code} — ${c.title}">Delete</button>
         </td>
@@ -128,7 +133,7 @@ async function loadCourses() {
       btn.addEventListener("click", () => fillFormForEdit(JSON.parse(btn.dataset.edit)));
     });
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-8">Couldn't load courses (${err.message}).</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-8">Couldn't load courses (${err.message}).</td></tr>`;
   }
 }
 

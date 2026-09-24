@@ -15,23 +15,25 @@
 <main class="max-w-6xl mx-auto px-4 py-8">
   <h1 class="font-display text-xl font-semibold mb-1">Courses</h1>
 
-  <!-- ===== STUDENT VIEW: My Courses + Available to Enroll ===== -->
+  <!-- ===== STUDENT VIEW ===== -->
   <div class="student-only">
     <p class="text-muted text-sm mb-6">Pick the courses you need — once enrolled, they'll move out of the available list.</p>
 
     <h2 class="font-display text-base font-semibold mb-2">My Courses</h2>
     <div class="bg-white border border-border rounded-lg overflow-x-auto mb-8">
-      <table class="w-full text-sm">
+      <table class="w-full text-sm table-fixed">
         <thead class="bg-navy-dark text-white">
           <tr class="font-mono text-xs uppercase tracking-wide">
-            <th class="text-left px-4 py-3 font-medium">Code</th>
-            <th class="text-left px-4 py-3 font-medium">Title</th>
-            <th class="text-left px-4 py-3 font-medium">Program</th>
-            <th class="text-left px-4 py-3 font-medium">Units</th>
+            <th class="text-left px-4 py-3 font-medium w-[12%]">Code</th>
+            <th class="text-left px-4 py-3 font-medium w-[22%]">Title</th>
+            <th class="text-left px-4 py-3 font-medium w-[24%]">Program</th>
+            <th class="text-left px-4 py-3 font-medium w-[8%]">Units</th>
+            <th class="text-left px-4 py-3 font-medium w-[20%]">Professor</th>
+            <th class="text-right px-4 py-3 font-medium w-[14%]">Action</th>
           </tr>
         </thead>
         <tbody id="myCoursesBody" class="divide-y divide-border">
-          <tr><td colspan="4" class="text-center text-muted py-6">Loading…</td></tr>
+          <tr><td colspan="6" class="text-center text-muted py-6">Loading…</td></tr>
         </tbody>
       </table>
     </div>
@@ -39,41 +41,43 @@
     <h2 class="font-display text-base font-semibold mb-2">Available Courses</h2>
     <div id="availableError" class="hidden bg-[#FBE8E6] border border-[#F3C7C2] text-[#8A2E26] rounded-md px-3 py-2 mb-3 text-sm"></div>
     <div class="bg-white border border-border rounded-lg overflow-x-auto">
-      <table class="w-full text-sm">
+      <table class="w-full text-sm table-fixed">
         <thead class="bg-navy-dark text-white">
           <tr class="font-mono text-xs uppercase tracking-wide">
-            <th class="text-left px-4 py-3 font-medium">Code</th>
-            <th class="text-left px-4 py-3 font-medium">Title</th>
-            <th class="text-left px-4 py-3 font-medium">Program</th>
-            <th class="text-left px-4 py-3 font-medium">Units</th>
-            <th class="text-right px-4 py-3 font-medium">Action</th>
+            <th class="text-left px-4 py-3 font-medium w-[12%]">Code</th>
+            <th class="text-left px-4 py-3 font-medium w-[22%]">Title</th>
+            <th class="text-left px-4 py-3 font-medium w-[24%]">Program</th>
+            <th class="text-left px-4 py-3 font-medium w-[8%]">Units</th>
+            <th class="text-left px-4 py-3 font-medium w-[20%]">Professor</th>
+            <th class="text-right px-4 py-3 font-medium w-[14%]">Action</th>
           </tr>
         </thead>
         <tbody id="availableCoursesBody" class="divide-y divide-border">
-          <tr><td colspan="5" class="text-center text-muted py-6">Loading…</td></tr>
+          <tr><td colspan="6" class="text-center text-muted py-6">Loading…</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 
-  <!-- ===== TEACHER VIEW: full manage table + form ===== -->
+  <!-- ===== TEACHER VIEW ===== -->
   <div class="teacher-only">
     <p class="text-muted text-sm mb-6">Add, edit, or remove courses. Each course belongs to one department + program.</p>
     <div class="grid lg:grid-cols-[2fr_1fr] gap-8">
       <div class="bg-white border border-border rounded-lg overflow-x-auto">
-        <table class="w-full text-sm">
+        <table class="w-full text-sm table-fixed">
           <thead class="bg-navy-dark text-white">
             <tr class="font-mono text-xs uppercase tracking-wide">
-              <th class="text-left px-4 py-3 font-medium">Code</th>
-              <th class="text-left px-4 py-3 font-medium">Title</th>
-              <th class="text-left px-4 py-3 font-medium">Program</th>
-              <th class="text-left px-4 py-3 font-medium">Units</th>
-              <th class="text-left px-4 py-3 font-medium">Description</th>
-              <th class="text-right px-4 py-3 font-medium">Actions</th>
+              <th class="text-left px-3 py-3 font-medium w-[10%]">Code</th>
+              <th class="text-left px-3 py-3 font-medium w-[16%]">Title</th>
+              <th class="text-left px-3 py-3 font-medium w-[16%]">Program</th>
+              <th class="text-left px-3 py-3 font-medium w-[7%]">Units</th>
+              <th class="text-left px-3 py-3 font-medium w-[15%]">Professor</th>
+              <th class="text-left px-3 py-3 font-medium w-[18%]">Description</th>
+              <th class="text-right px-3 py-3 font-medium w-[18%]">Actions</th>
             </tr>
           </thead>
           <tbody id="courseTableBody" class="divide-y divide-border">
-            <tr><td colspan="6" class="text-center text-muted py-8">Loading courses…</td></tr>
+            <tr><td colspan="7" class="text-center text-muted py-8">Loading courses…</td></tr>
           </tbody>
         </table>
       </div>
@@ -121,27 +125,7 @@
     </div>
   </div>
 </main>
-<!-- ===== Enroll confirmation ===== -->
-<div id="enrollModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
-  <div class="bg-white rounded-lg max-w-sm w-full p-5">
-    <p class="text-sm mb-4">Do you want to enroll in <strong id="enrollModalLabel"></strong>?</p>
-    <div class="flex justify-end gap-2">
-      <button id="btnCancelEnroll" class="border border-muted text-muted rounded-md px-4 py-1.5 text-sm hover:bg-muted hover:text-white transition">Cancel</button>
-      <button id="btnConfirmEnroll" class="bg-gold text-navy-dark rounded-md px-4 py-1.5 text-sm font-semibold hover:bg-gold-light transition">Enroll Now</button>
-    </div>
-  </div>
-</div>
 
-<!-- ===== Remove confirmation ===== -->
-<div id="removeModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
-  <div class="bg-white rounded-lg max-w-sm w-full p-5">
-    <p class="text-sm mb-4">Are you sure you want to remove <strong id="removeModalLabel"></strong>?</p>
-    <div class="flex justify-end gap-2">
-      <button id="btnCancelRemove" class="border border-muted text-muted rounded-md px-4 py-1.5 text-sm hover:bg-muted hover:text-white transition">Cancel</button>
-      <button id="btnConfirmRemove" class="bg-danger text-white rounded-md px-4 py-1.5 text-sm font-semibold hover:opacity-90 transition">Remove Course</button>
-    </div>
-  </div>
-</div>
 <footer class="border-t border-border py-6 mt-4">
   <div class="max-w-6xl mx-auto px-4 text-center text-sm text-muted">&copy; 2026 Enchong Dee University — Student System Management</div>
 </footer>
@@ -149,6 +133,7 @@
 <script src="js/api.js"></script>
 <script src="js/navbar.js"></script>
 <script src="js/guard.js"></script>
+<script src="js/modal.js"></script>
 <script src="js/colleges.js"></script>
 <script src="js/course.js"></script>
 </body>

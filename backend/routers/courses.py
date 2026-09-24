@@ -1,7 +1,8 @@
 """
-routers/courses.py — teachers manage the full catalog. Students browse
-"available" courses, enroll, and can also unenroll (remove) a course
-they previously picked, which puts it back into "available".
+routers/courses.py — teachers manage the full catalog and are recorded
+as the creator/professor of each course. Students browse "available"
+courses (not yet enrolled), enroll, and can unenroll. Every listing
+includes the professor's name via a join on created_by.
 """
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -12,27 +13,45 @@ from models import CourseCreate
 router = APIRouter(prefix="/courses", tags=["courses"])
 
 
+def _with_professor(row: dict) -> dict:
+    professor = row.get("users") or {}
+    row["professor_name"] = f"{professor.get('first_name','')} {professor.get('last_name','')}".strip() or None
+    row.pop("users", None)
+    return row
+
+
 @router.get("")
 def list_courses(current_user: dict = Depends(get_current_user)):
     if current_user["role"] == "student":
         result = (
             supabase.table("enrollments")
-            .select("courses(*)")
+            .select("courses(*, users!courses_created_by_fkey(first_name, last_name))")
             .eq("student_id", current_user["id"])
             .execute()
         )
-        return [row["courses"] for row in result.data if row.get("courses")]
+        return [_with_professor(row["courses"]) for row in result.data if row.get("courses")]
 
-    result = supabase.table("courses").select("*").order("code").execute()
-    return result.data
+    result = (
+        supabase.table("courses")
+        .select("*, users!courses_created_by_fkey(first_name, last_name)")
+        .order("code")
+        .execute()
+    )
+    return [_with_professor(r) for r in result.data]
 
 
 @router.get("/available")
 def list_available_courses(student: dict = Depends(require_role("student"))):
     enrolled = supabase.table("enrollments").select("course_id").eq("student_id", student["id"]).execute()
     enrolled_ids = {row["course_id"] for row in enrolled.data}
-    all_courses = supabase.table("courses").select("*").order("code").execute()
-    return [c for c in all_courses.data if c["id"] not in enrolled_ids]
+
+    all_courses = (
+        supabase.table("courses")
+        .select("*, users!courses_created_by_fkey(first_name, last_name)")
+        .order("code")
+        .execute()
+    )
+    return [_with_professor(c) for c in all_courses.data if c["id"] not in enrolled_ids]
 
 
 @router.post("/{course_id}/enroll")
@@ -57,7 +76,9 @@ def unenroll_course(course_id: str, student: dict = Depends(require_role("studen
 
 @router.post("")
 def create_course(payload: CourseCreate, teacher: dict = Depends(require_role("teacher"))):
-    result = supabase.table("courses").insert(payload.dict()).execute()
+    data = payload.dict()
+    data["created_by"] = teacher["id"]
+    result = supabase.table("courses").insert(data).execute()
     if not result.data:
         raise HTTPException(status_code=500, detail="Could not create course.")
     return result.data[0]
