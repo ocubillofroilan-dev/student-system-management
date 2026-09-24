@@ -40,6 +40,12 @@
       <div><span class="text-muted block">Department</span><span data-view="department">—</span></div>
       <div><span class="text-muted block">Year Level</span><span data-view="yearLevel">—</span></div>
       <div><span class="text-muted block" data-view="programLabel">Course / Program</span><span data-view="course">—</span></div>
+      <div><span class="text-muted block">Valid Until</span><span data-view="validUntil">—</span></div>
+      <div><span class="text-muted block">Contact Number</span><span data-view="contactNumber">—</span></div>
+      <div><span class="text-muted block">Email</span><span data-view="email">—</span></div>
+      <div class="md:col-span-2"><span class="text-muted block">Address</span><span data-view="address">—</span></div>
+      <div><span class="text-muted block">Emergency Contact</span><span data-view="emergencyName">—</span></div>
+      <div><span class="text-muted block">Emergency Number</span><span data-view="emergencyNumber">—</span></div>
       <div><span class="text-muted block">Enrolled Since</span><span data-view="enrolledSince">—</span></div>
     </div>
 
@@ -101,9 +107,15 @@
         </div>
       </div>
 
-      <div>
-        <label for="pStatus" class="block text-sm font-semibold text-navy-dark mb-1">Status</label>
-        <input type="text" id="pStatus" placeholder="e.g. Single, Married, Active" class="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label for="pStatus" class="block text-sm font-semibold text-navy-dark mb-1">Status</label>
+          <input type="text" id="pStatus" placeholder="e.g. Single, Married, Active" class="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+        </div>
+        <div>
+          <label for="pValidUntil" class="block text-sm font-semibold text-navy-dark mb-1">Valid Until</label>
+          <input type="date" id="pValidUntil" class="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+        </div>
       </div>
 
       <div>
@@ -133,6 +145,36 @@
         <input type="text" id="pSpecialization" placeholder="e.g. Computer Engineering" class="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
       </div>
 
+      <hr class="border-border">
+      <p class="text-sm font-semibold text-navy-dark">Contact & Emergency Details</p>
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label for="pContactNumber" class="block text-sm font-semibold text-navy-dark mb-1">Contact Number</label>
+          <input type="text" id="pContactNumber" placeholder="e.g. 0917 123 4567" class="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+        </div>
+        <div>
+          <label for="pEmail" class="block text-sm font-semibold text-navy-dark mb-1">Email</label>
+          <input type="email" id="pEmail" placeholder="e.g. name@email.com" class="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+        </div>
+      </div>
+
+      <div>
+        <label for="pAddress" class="block text-sm font-semibold text-navy-dark mb-1">Address</label>
+        <input type="text" id="pAddress" placeholder="e.g. 123 Rizal St., Quezon City" class="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label for="pEmergencyName" class="block text-sm font-semibold text-navy-dark mb-1">Emergency Contact Person</label>
+          <input type="text" id="pEmergencyName" placeholder="e.g. Maria Ocubillo" class="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+        </div>
+        <div>
+          <label for="pEmergencyNumber" class="block text-sm font-semibold text-navy-dark mb-1">Emergency Contact Number</label>
+          <input type="text" id="pEmergencyNumber" placeholder="e.g. 0917 765 4321" class="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+        </div>
+      </div>
+
       <div class="flex gap-3">
         <button type="submit" class="bg-gold text-navy-dark rounded-md px-6 py-2.5 font-semibold hover:bg-gold-light transition">Save Changes</button>
         <button type="button" id="btnCancelEdit" class="border border-muted text-muted rounded-md px-6 py-2.5 hover:bg-muted hover:text-white transition">Cancel</button>
@@ -140,57 +182,87 @@
     </form>
   </div>
 
-  <!-- ===== ID CARD MODE (photo_id) ===== -->
-<div id="idCardMode" class="hidden">
-  <div class="max-w-xs mx-auto">
-    <div class="flex justify-center">
-      <div class="w-10 h-4 bg-[#D9CBA3] rounded-t-md border border-border border-b-0"></div>
-    </div>
-    <div class="w-3 h-3 bg-[#D9CBA3] rounded-full mx-auto -mt-1 border border-border relative z-10"></div>
-
-    <div id="idCardCapture" class="bg-[#FAF6EC] rounded-2xl overflow-hidden shadow-xl border border-border -mt-1.5">
-      <div class="bg-gradient-to-r from-navy-dark to-navy px-4 py-3 flex items-center justify-between">
-        <div class="font-display text-white font-bold text-sm leading-tight">ENCHONG DEE<br>UNIVERSITY</div>
-        <div class="w-12 h-12 rounded-full bg-[#FAF6EC] flex items-center justify-center p-1 flex-shrink-0">
-          <img src="./images/edu.png" alt="EDU Seal" class="w-full h-full object-contain">
-        </div>
+  <!-- ===== ID CARD MODE (flip card) ===== -->
+  <div id="idCardMode" class="hidden">
+    <div class="max-w-xs mx-auto" style="perspective: 1200px;">
+      <div class="flex justify-center">
+        <div class="w-10 h-4 bg-[#D9CBA3] rounded-t-md border border-border border-b-0"></div>
       </div>
+      <div class="w-3 h-3 bg-[#D9CBA3] rounded-full mx-auto -mt-1 border border-border relative z-10"></div>
 
-      <div class="flex gap-3 px-4 pt-4">
-        <div class="flex-1 space-y-2.5 text-xs">
-          <div><div class="text-muted uppercase tracking-wide text-[0.6rem]">Name</div><div class="font-semibold text-sm" data-id="fullName">—</div></div>
-          <div><div class="text-muted uppercase tracking-wide text-[0.6rem]">Department</div><div class="font-semibold text-sm" data-id="department">—</div></div>
-          <div><div class="text-muted uppercase tracking-wide text-[0.6rem]">Year Level</div><div class="font-semibold text-sm" data-id="yearLevel">—</div></div>
-          <div><div class="text-muted uppercase tracking-wide text-[0.6rem]" data-id="programLabel">Program</div><div class="font-semibold text-sm" data-id="program">—</div></div>
-          <div><div class="text-muted uppercase tracking-wide text-[0.6rem]">Status</div><div class="font-semibold text-sm" data-id="status">—</div></div>
-          <div><div class="text-muted uppercase tracking-wide text-[0.6rem]">ID Number</div><div class="font-semibold text-sm font-mono" data-id="idNumber">—</div></div>
-        </div>
+      <div id="idCardFlipper" class="relative -mt-1.5 transition-transform duration-500" style="transform-style: preserve-3d;">
 
-        <div class="flex flex-col items-center gap-2 flex-shrink-0">
-          <div id="idCardPhotoWrap" class="w-24 h-36 bg-white border border-border rounded-md overflow-hidden flex items-center justify-center text-muted text-[0.6rem] font-mono">
-            No Photo
+        <!-- FRONT -->
+        <div id="idCardCapture" class="bg-[#FAF6EC] rounded-2xl overflow-hidden shadow-xl border border-border" style="backface-visibility: hidden;">
+          <div class="bg-gradient-to-r from-navy-dark to-navy px-4 py-3 flex items-center gap-3">
+            <div class="w-16 h-16 rounded-full bg-[#FAF6EC] flex items-center justify-center p-1.5 flex-shrink-0">
+              <img src="./images/edu.png" alt="EDU Seal" class="w-full h-full object-contain">
+            </div>
+            <div class="font-display text-white font-bold text-sm leading-tight">ENCHONG DEE<br>UNIVERSITY</div>
           </div>
-          <div class="bg-navy text-white text-[0.65rem] font-bold uppercase tracking-widest px-3 py-1 rounded w-full text-center" data-id="roleLabel">Student</div>
+
+          <div class="flex gap-3 px-4 pt-4">
+            <div class="flex-1 space-y-2.5 text-xs">
+              <div><div class="text-muted uppercase tracking-wide text-[0.6rem]">Name</div><div class="font-semibold text-sm" data-id="fullName">—</div></div>
+              <div><div class="text-muted uppercase tracking-wide text-[0.6rem]">Department</div><div class="font-semibold text-sm" data-id="department">—</div></div>
+              <div><div class="text-muted uppercase tracking-wide text-[0.6rem]">Year Level</div><div class="font-semibold text-sm" data-id="yearLevel">—</div></div>
+              <div><div class="text-muted uppercase tracking-wide text-[0.6rem]" data-id="programLabel">Program</div><div class="font-semibold text-sm" data-id="program">—</div></div>
+              <div><div class="text-muted uppercase tracking-wide text-[0.6rem]">Status</div><div class="font-semibold text-sm" data-id="status">—</div></div>
+              <div><div class="text-muted uppercase tracking-wide text-[0.6rem]">ID Number</div><div class="font-semibold text-sm font-mono" data-id="idNumber">—</div></div>
+            </div>
+
+            <div class="flex flex-col items-center gap-2 flex-shrink-0">
+              <div id="idCardPhotoWrap" class="w-24 h-32 bg-white border border-border rounded-md overflow-hidden flex items-center justify-center text-muted text-[0.6rem] font-mono">
+                No Photo
+              </div>
+              <div class="bg-navy text-white text-[0.65rem] font-bold uppercase tracking-widest px-3 py-1 rounded w-full text-center" data-id="roleLabel">Student</div>
+              <div class="text-[0.6rem] text-muted text-center">Valid Until<br><span class="font-semibold text-ink" data-id="validUntil">—</span></div>
+            </div>
+          </div>
+
+          <div class="px-4 pt-4 pb-3">
+            <div class="border-b border-ink w-24 mb-0.5">&nbsp;</div>
+            <div class="text-[0.6rem] text-muted">Signature</div>
+          </div>
+
+          <div class="h-1.5 bg-gold"></div>
+
+          <div class="bg-navy text-center text-white/90 text-[0.7rem] italic px-4 py-3">
+            "Where learning becomes growth, and dreams become achievements."
+          </div>
         </div>
-      </div>
 
-      <div class="px-4 pt-4 pb-3">
-        <div class="border-b border-ink w-24 mb-0.5">&nbsp;</div>
-        <div class="text-[0.6rem] text-muted">Signature</div>
-      </div>
+        <!-- BACK -->
+        <div class="absolute inset-0 bg-[#FAF6EC] rounded-2xl overflow-hidden shadow-xl border border-border" style="backface-visibility: hidden; transform: rotateY(180deg);">
+          <div class="bg-gradient-to-r from-navy-dark to-navy px-4 py-3 text-center">
+            <div class="font-display text-white font-bold text-sm">EMERGENCY & CONTACT INFO</div>
+          </div>
+          <div class="p-4 space-y-2.5 text-xs">
+            <div><div class="text-muted uppercase tracking-wide text-[0.6rem]">Contact Number</div><div class="font-semibold text-sm" data-id="contactNumber">—</div></div>
+            <div><div class="text-muted uppercase tracking-wide text-[0.6rem]">Email</div><div class="font-semibold text-sm" data-id="email">—</div></div>
+            <div><div class="text-muted uppercase tracking-wide text-[0.6rem]">Address</div><div class="font-semibold text-sm" data-id="address">—</div></div>
+            <div><div class="text-muted uppercase tracking-wide text-[0.6rem]">Emergency Contact</div><div class="font-semibold text-sm" data-id="emergencyName">—</div></div>
+            <div><div class="text-muted uppercase tracking-wide text-[0.6rem]">Emergency Number</div><div class="font-semibold text-sm" data-id="emergencyNumber">—</div></div>
+          </div>
+          <div class="px-4 pt-2 pb-3">
+            <div class="border-b border-ink w-24 mb-0.5">&nbsp;</div>
+            <div class="text-[0.6rem] text-muted">Signature</div>
+          </div>
+          <div class="h-1.5 bg-gold"></div>
+          <div class="bg-navy text-center text-white/80 text-[0.65rem] px-4 py-3">
+            If found, please return to Enchong Dee University.
+          </div>
+        </div>
 
-      <div class="h-1.5 bg-gold"></div>
-
-      <div class="bg-navy text-center text-white/90 text-[0.7rem] italic px-4 py-3">
-        "Where learning becomes growth, and dreams become achievements."
       </div>
     </div>
+
+    <div class="text-center mt-5 flex justify-center gap-3">
+      <button id="btnFlipId" class="border border-navy text-navy rounded-md px-5 py-2 font-semibold hover:bg-navy hover:text-white transition">Flip Card</button>
+      <button id="btnDownloadId" class="bg-gold text-navy-dark rounded-md px-5 py-2 font-semibold hover:bg-gold-light transition">Download ID</button>
+      <button id="btnCloseId" class="border border-navy text-navy rounded-md px-5 py-2 font-semibold hover:bg-navy hover:text-white transition">Close</button>
+    </div>
   </div>
-  <div class="text-center mt-5 flex justify-center gap-3">
-    <button id="btnDownloadId" class="bg-gold text-navy-dark rounded-md px-5 py-2 font-semibold hover:bg-gold-light transition">Download ID</button>
-    <button id="btnCloseId" class="border border-navy text-navy rounded-md px-5 py-2 font-semibold hover:bg-navy hover:text-white transition">Close</button>
-  </div>
-</div>
 </main>
 
 <footer class="border-t border-border py-6 mt-4">

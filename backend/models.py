@@ -38,6 +38,12 @@ class UserOut(BaseModel):
     birthdate: Optional[str] = None
     gender: Optional[str] = None
     status: Optional[str] = None
+    valid_until: Optional[str] = None
+    contact_number: Optional[str] = None
+    address: Optional[str] = None
+    emergency_contact_name: Optional[str] = None
+    emergency_contact_number: Optional[str] = None
+    email: Optional[str] = None
     photo_id: Optional[str] = None
     created_at: Optional[str] = None
 
@@ -57,8 +63,13 @@ class ProfileUpdateRequest(BaseModel):
     birthdate: Optional[str] = None
     gender: Optional[str] = None
     status: Optional[str] = None
+    valid_until: Optional[str] = None
+    contact_number: Optional[str] = None
+    address: Optional[str] = None
+    emergency_contact_name: Optional[str] = None
+    emergency_contact_number: Optional[str] = None
+    email: Optional[str] = None
     photo_id: Optional[str] = None
-
 
 class AnnouncementCreate(BaseModel):
     title: str

@@ -1,17 +1,16 @@
 /**
- * profile.js — three modes: View, Edit, ID Card. Status is one plain
- * free-text field for both roles. Year Level shows for BOTH roles now
- * ("N/A" for professors) so the card has the same row count and same
- * height regardless of role, keeping the photo in the same position
- * on every card. "Program" reuses the `course` field for both roles —
- * a student's actual program, or a professor's specialization — same
- * column, different label. Professors get a "-P" suffix on the ID
- * card's ID number (display-only). Requires colleges.js for the
- * department/program dropdowns, and html2canvas (loaded in
- * profile.html) for the Download ID button.
+ * profile.js — three modes: View, Edit, ID Card (a two-sided flip
+ * card: front has the usual student/faculty info, back has contact +
+ * emergency details). Year Level shows for both roles ("N/A" for
+ * professors) so both cards share the same row count and height.
+ * "Program" reuses the `course` field for both roles. Professors get
+ * a "-P" suffix on the front ID number (display-only). Requires
+ * colleges.js for the department/program dropdowns, and html2canvas
+ * (loaded in profile.html) for the Download ID button.
  */
 let currentProfile = null;
 let pendingPhoto = null;
+let idCardFlipped = false;
 
 function fmtDate(iso) {
   if (!iso) return "—";
@@ -39,6 +38,12 @@ function renderView(p) {
   document.querySelector('[data-view="programLabel"]').textContent = p.role === "teacher" ? "Program / Specialization" : "Course / Program";
   document.querySelector('[data-view="course"]').textContent = p.course || "—";
   document.querySelector('[data-view="yearLevel"]').textContent = p.role === "student" ? (p.year_level || "—") : "N/A";
+  document.querySelector('[data-view="validUntil"]').textContent = p.valid_until ? fmtDate(p.valid_until) : "—";
+  document.querySelector('[data-view="contactNumber"]').textContent = p.contact_number || "—";
+  document.querySelector('[data-view="email"]').textContent = p.email || "—";
+  document.querySelector('[data-view="address"]').textContent = p.address || "—";
+  document.querySelector('[data-view="emergencyName"]').textContent = p.emergency_contact_name || "—";
+  document.querySelector('[data-view="emergencyNumber"]').textContent = p.emergency_contact_number || "—";
   document.querySelector('[data-view="enrolledSince"]').textContent = fmtDate(p.created_at);
   renderPhoto(document.getElementById("viewPhotoWrap"), p.photo_id);
 }
@@ -52,6 +57,12 @@ function renderIdCard(p) {
   document.querySelector('[data-id="programLabel"]').textContent = p.role === "teacher" ? "Program / Specialization" : "Program";
   document.querySelector('[data-id="program"]').textContent = p.course || "—";
   document.querySelector('[data-id="status"]').textContent = p.status || "—";
+  document.querySelector('[data-id="validUntil"]').textContent = p.valid_until ? fmtDate(p.valid_until) : "—";
+  document.querySelector('[data-id="contactNumber"]').textContent = p.contact_number || "—";
+  document.querySelector('[data-id="email"]').textContent = p.email || "—";
+  document.querySelector('[data-id="address"]').textContent = p.address || "—";
+  document.querySelector('[data-id="emergencyName"]').textContent = p.emergency_contact_name || "—";
+  document.querySelector('[data-id="emergencyNumber"]').textContent = p.emergency_contact_number || "—";
   renderPhoto(document.getElementById("idCardPhotoWrap"), p.photo_id);
 }
 
@@ -64,6 +75,12 @@ function fillEditForm(p) {
   document.getElementById("pBirthdate").value = p.birthdate || "";
   document.getElementById("pGender").value = p.gender || "";
   document.getElementById("pStatus").value = p.status || "";
+  document.getElementById("pValidUntil").value = p.valid_until || "";
+  document.getElementById("pContactNumber").value = p.contact_number || "";
+  document.getElementById("pEmail").value = p.email || "";
+  document.getElementById("pAddress").value = p.address || "";
+  document.getElementById("pEmergencyName").value = p.emergency_contact_name || "";
+  document.getElementById("pEmergencyNumber").value = p.emergency_contact_number || "";
 
   populateDepartmentDropdown(document.getElementById("pDepartment"));
   document.getElementById("pDepartment").value = p.department || "";
@@ -90,6 +107,10 @@ function showMode(mode) {
   document.getElementById("viewMode").classList.toggle("hidden", mode !== "view");
   document.getElementById("editMode").classList.toggle("hidden", mode !== "edit");
   document.getElementById("idCardMode").classList.toggle("hidden", mode !== "id");
+  if (mode === "id") {
+    idCardFlipped = false;
+    document.getElementById("idCardFlipper").style.transform = "rotateY(0deg)";
+  }
 }
 
 async function loadProfile() {
@@ -112,6 +133,11 @@ document.getElementById("btnEdit").addEventListener("click", () => {
 document.getElementById("btnShowId").addEventListener("click", () => showMode("id"));
 document.getElementById("btnCloseId").addEventListener("click", () => showMode("view"));
 document.getElementById("btnCancelEdit").addEventListener("click", () => showMode("view"));
+
+document.getElementById("btnFlipId").addEventListener("click", () => {
+  idCardFlipped = !idCardFlipped;
+  document.getElementById("idCardFlipper").style.transform = idCardFlipped ? "rotateY(180deg)" : "rotateY(0deg)";
+});
 
 document.getElementById("pDepartment").addEventListener("change", (e) => {
   populateProgramDropdown(document.getElementById("pCourse"), e.target.value);
@@ -143,6 +169,12 @@ document.getElementById("profileForm").addEventListener("submit", async (e) => {
     birthdate: document.getElementById("pBirthdate").value,
     gender: document.getElementById("pGender").value,
     status: document.getElementById("pStatus").value.trim(),
+    valid_until: document.getElementById("pValidUntil").value,
+    contact_number: document.getElementById("pContactNumber").value.trim(),
+    email: document.getElementById("pEmail").value.trim(),
+    address: document.getElementById("pAddress").value.trim(),
+    emergency_contact_name: document.getElementById("pEmergencyName").value.trim(),
+    emergency_contact_number: document.getElementById("pEmergencyNumber").value.trim(),
   };
 
   if (window.currentUser.role === "student") {
