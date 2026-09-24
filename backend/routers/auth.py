@@ -19,6 +19,7 @@ def _to_user_out(row: dict) -> UserOut:
         valid_until=row.get("valid_until"), contact_number=row.get("contact_number"),
         address=row.get("address"), emergency_contact_name=row.get("emergency_contact_name"),
         emergency_contact_number=row.get("emergency_contact_number"), email=row.get("email"),
+        personal_quote=row.get("personal_quote"),
         photo_id=row.get("photo_id"), created_at=row.get("created_at"),
     )
 
