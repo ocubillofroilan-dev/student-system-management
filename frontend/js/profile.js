@@ -1,16 +1,17 @@
 /**
- * profile.js — three modes: View, Edit, ID Card (a two-sided flip
- * card: front has the usual student/faculty info, back has contact +
- * emergency details). Year Level shows for both roles ("N/A" for
- * professors) so both cards share the same row count and height.
- * "Program" reuses the `course` field for both roles. Professors get
- * a "-P" suffix on the front ID number (display-only). Requires
- * colleges.js for the department/program dropdowns, and html2canvas
- * (loaded in profile.html) for the Download ID button.
+ * profile.js — three modes: View, Edit, ID Card. The card flips to
+ * show its back purely via CSS :hover (see the <style> block in
+ * profile.html) — no JS needed for the flip itself. Two separate
+ * download buttons capture the front and back as PNGs; the back is
+ * temporarily un-rotated before capture so it isn't saved mirrored,
+ * then restored right after. Requires colleges.js for the department/
+ * program dropdowns, and html2canvas (loaded in profile.html) for
+ * downloads.
  */
 let currentProfile = null;
 let pendingPhoto = null;
-let idCardFlipped = false;
+
+const DEFAULT_QUOTE = "Where learning becomes growth, and dreams become achievements.";
 
 function fmtDate(iso) {
   if (!iso) return "—";
@@ -44,17 +45,20 @@ function renderView(p) {
   document.querySelector('[data-view="address"]').textContent = p.address || "—";
   document.querySelector('[data-view="emergencyName"]').textContent = p.emergency_contact_name || "—";
   document.querySelector('[data-view="emergencyNumber"]').textContent = p.emergency_contact_number || "—";
+  document.querySelector('[data-view="quote"]').textContent = p.personal_quote || "—";
   document.querySelector('[data-view="enrolledSince"]').textContent = fmtDate(p.created_at);
   renderPhoto(document.getElementById("viewPhotoWrap"), p.photo_id);
 }
 
 function renderIdCard(p) {
-  document.querySelector('[data-id="fullName"]').textContent = `${p.first_name} ${p.last_name}`;
+  const fullName = `${p.first_name} ${p.last_name}`;
+  document.querySelector('[data-id="fullName"]').textContent = fullName;
+  document.querySelector('[data-id="fullNameBack"]').textContent = fullName;
   document.querySelector('[data-id="department"]').textContent = p.department || "—";
   document.querySelector('[data-id="yearLevel"]').textContent = p.role === "student" ? (p.year_level || "—") : "N/A";
   document.querySelector('[data-id="idNumber"]').textContent = p.role === "teacher" ? `${p.id_number}-P` : p.id_number;
-  document.querySelector('[data-id="roleLabel"]').textContent = p.role === "teacher" ? "Professor" : "Student";
-  document.querySelector('[data-id="programLabel"]').textContent = p.role === "teacher" ? "Program / Specialization" : "Program";
+  document.querySelector('[data-id="roleLabel"]').textContent = p.role === "teacher" ? "Professor ID" : "Student ID";
+  document.querySelector('[data-id="programLabel"]').textContent = p.role === "teacher" ? "Specialization" : "Program";
   document.querySelector('[data-id="program"]').textContent = p.course || "—";
   document.querySelector('[data-id="status"]').textContent = p.status || "—";
   document.querySelector('[data-id="validUntil"]').textContent = p.valid_until ? fmtDate(p.valid_until) : "—";
@@ -63,6 +67,7 @@ function renderIdCard(p) {
   document.querySelector('[data-id="address"]').textContent = p.address || "—";
   document.querySelector('[data-id="emergencyName"]').textContent = p.emergency_contact_name || "—";
   document.querySelector('[data-id="emergencyNumber"]').textContent = p.emergency_contact_number || "—";
+  document.querySelector('[data-id="quoteCard"]').textContent = `"${p.personal_quote || DEFAULT_QUOTE}"`;
   renderPhoto(document.getElementById("idCardPhotoWrap"), p.photo_id);
 }
 
@@ -81,6 +86,7 @@ function fillEditForm(p) {
   document.getElementById("pAddress").value = p.address || "";
   document.getElementById("pEmergencyName").value = p.emergency_contact_name || "";
   document.getElementById("pEmergencyNumber").value = p.emergency_contact_number || "";
+  document.getElementById("pQuote").value = p.personal_quote || "";
 
   populateDepartmentDropdown(document.getElementById("pDepartment"));
   document.getElementById("pDepartment").value = p.department || "";
@@ -107,10 +113,6 @@ function showMode(mode) {
   document.getElementById("viewMode").classList.toggle("hidden", mode !== "view");
   document.getElementById("editMode").classList.toggle("hidden", mode !== "edit");
   document.getElementById("idCardMode").classList.toggle("hidden", mode !== "id");
-  if (mode === "id") {
-    idCardFlipped = false;
-    document.getElementById("idCardFlipper").style.transform = "rotateY(0deg)";
-  }
 }
 
 async function loadProfile() {
@@ -133,11 +135,6 @@ document.getElementById("btnEdit").addEventListener("click", () => {
 document.getElementById("btnShowId").addEventListener("click", () => showMode("id"));
 document.getElementById("btnCloseId").addEventListener("click", () => showMode("view"));
 document.getElementById("btnCancelEdit").addEventListener("click", () => showMode("view"));
-
-document.getElementById("btnFlipId").addEventListener("click", () => {
-  idCardFlipped = !idCardFlipped;
-  document.getElementById("idCardFlipper").style.transform = idCardFlipped ? "rotateY(180deg)" : "rotateY(0deg)";
-});
 
 document.getElementById("pDepartment").addEventListener("change", (e) => {
   populateProgramDropdown(document.getElementById("pCourse"), e.target.value);
@@ -175,6 +172,7 @@ document.getElementById("profileForm").addEventListener("submit", async (e) => {
     address: document.getElementById("pAddress").value.trim(),
     emergency_contact_name: document.getElementById("pEmergencyName").value.trim(),
     emergency_contact_number: document.getElementById("pEmergencyNumber").value.trim(),
+    personal_quote: document.getElementById("pQuote").value.trim(),
   };
 
   if (window.currentUser.role === "student") {
@@ -202,13 +200,24 @@ document.getElementById("profileForm").addEventListener("submit", async (e) => {
   }
 });
 
-document.getElementById("btnDownloadId").addEventListener("click", async () => {
-  const card = document.getElementById("idCardCapture");
-  const canvas = await html2canvas(card, { backgroundColor: "#FAF6EC", scale: 2 });
+async function downloadElementAsPng(element, filename) {
+  const canvas = await html2canvas(element, { backgroundColor: "#FFFFFF", scale: 2 });
   const link = document.createElement("a");
-  link.download = `${currentProfile.id_number}-school-id.png`;
+  link.download = filename;
   link.href = canvas.toDataURL("image/png");
   link.click();
+}
+
+document.getElementById("btnDownloadFront").addEventListener("click", () => {
+  downloadElementAsPng(document.getElementById("idCardCapture"), `${currentProfile.id_number}-school-id-front.png`);
+});
+
+document.getElementById("btnDownloadBack").addEventListener("click", async () => {
+  const back = document.getElementById("idCardBack");
+  const originalTransform = back.style.transform;
+  back.style.transform = "none"; // un-rotate so it isn't captured mirrored
+  await downloadElementAsPng(back, `${currentProfile.id_number}-school-id-back.png`);
+  back.style.transform = originalTransform; // restore the flip position
 });
 
 document.addEventListener("DOMContentLoaded", loadProfile);
