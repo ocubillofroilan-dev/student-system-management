@@ -2,6 +2,7 @@
  * auth.js — handles the login form (login.html) and signup form (signup.html).
  * Signup's Department/Course fields use the searchable dropdown component
  * from colleges.js, so colleges.js must load before this file.
+ * Professors must sign up with an ID number ending in P (e.g. 2020-12345P).
  */
 
 function showError(boxId, message) {
@@ -46,15 +47,19 @@ const signupForm = document.getElementById("signupForm");
 if (signupForm) {
   const roleInputs = document.querySelectorAll('input[name="role"]');
   const studentFields = document.getElementById("studentFields");
+  const idInput = document.getElementById("idNumber");
+  const idHint = document.getElementById("idHint");
 
-  function toggleStudentFields() {
+  function toggleRoleFields() {
     const role = document.querySelector('input[name="role"]:checked').value;
-    studentFields.classList.toggle("hidden", role !== "student");
+    const isTeacher = role === "teacher";
+    studentFields.classList.toggle("hidden", isTeacher);
+    idHint.classList.toggle("hidden", !isTeacher);
+    idInput.placeholder = isTeacher ? "e.g. 2020-12345P" : "e.g. 2026-00123";
   }
-  roleInputs.forEach((input) => input.addEventListener("change", toggleStudentFields));
-  toggleStudentFields();
+  roleInputs.forEach((input) => input.addEventListener("change", toggleRoleFields));
+  toggleRoleFields();
 
-  // Searchable Department / Course dropdowns
   let courseDropdown = createSearchableDropdown(
     "courseDropdown", [], "Choose a department first…", () => {}
   );
@@ -76,7 +81,12 @@ if (signupForm) {
     const role = document.querySelector('input[name="role"]:checked').value;
     const password = document.getElementById("signupPassword").value;
     const confirm_password = document.getElementById("signupConfirmPassword").value;
+    const id_number = idInput.value.trim();
 
+    if (role === "teacher" && !/p$/i.test(id_number)) {
+      showError("signupError", "Professor ID numbers must end with the letter P (e.g. 2020-12345P).");
+      return;
+    }
     if (password !== confirm_password) {
       showError("signupError", "Passwords do not match.");
       return;
@@ -101,7 +111,7 @@ if (signupForm) {
       first_name: document.getElementById("firstName").value.trim(),
       last_name: document.getElementById("lastName").value.trim(),
       middle_name: document.getElementById("middleName").value.trim(),
-      id_number: document.getElementById("idNumber").value.trim(),
+      id_number,
       password,
       confirm_password,
       year_level: role === "student" ? document.getElementById("yearLevel").value : null,
