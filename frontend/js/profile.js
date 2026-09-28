@@ -1,12 +1,10 @@
 /**
  * profile.js — three modes: View, Edit, ID Card. The card flips to
  * show its back purely via CSS :hover (see the <style> block in
- * profile.html) — no JS needed for the flip itself. Two separate
- * download buttons capture the front and back as PNGs; the back is
- * temporarily un-rotated before capture so it isn't saved mirrored,
- * then restored right after. Requires colleges.js for the department/
- * program dropdowns, and html2canvas (loaded in profile.html) for
- * downloads.
+ * profile.html). ID numbers are shown exactly as stored (professor
+ * IDs already end in P from signup). "Valid Until" is free text, so
+ * people can enter things like "Lifetime". Requires colleges.js for
+ * the department/program dropdowns, and html2canvas for downloads.
  */
 let currentProfile = null;
 let pendingPhoto = null;
@@ -39,7 +37,7 @@ function renderView(p) {
   document.querySelector('[data-view="programLabel"]').textContent = p.role === "teacher" ? "Program / Specialization" : "Course / Program";
   document.querySelector('[data-view="course"]').textContent = p.course || "—";
   document.querySelector('[data-view="yearLevel"]').textContent = p.role === "student" ? (p.year_level || "—") : "N/A";
-  document.querySelector('[data-view="validUntil"]').textContent = p.valid_until ? fmtDate(p.valid_until) : "—";
+  document.querySelector('[data-view="validUntil"]').textContent = p.valid_until || "—";
   document.querySelector('[data-view="contactNumber"]').textContent = p.contact_number || "—";
   document.querySelector('[data-view="email"]').textContent = p.email || "—";
   document.querySelector('[data-view="address"]').textContent = p.address || "—";
@@ -56,12 +54,12 @@ function renderIdCard(p) {
   document.querySelector('[data-id="fullNameBack"]').textContent = fullName;
   document.querySelector('[data-id="department"]').textContent = p.department || "—";
   document.querySelector('[data-id="yearLevel"]').textContent = p.role === "student" ? (p.year_level || "—") : "N/A";
-  document.querySelector('[data-id="idNumber"]').textContent = p.role === "teacher" ? `${p.id_number}-P` : p.id_number;
+  document.querySelector('[data-id="idNumber"]').textContent = p.id_number;
   document.querySelector('[data-id="roleLabel"]').textContent = p.role === "teacher" ? "Professor ID" : "Student ID";
-  document.querySelector('[data-id="programLabel"]').textContent = p.role === "teacher" ? "Specialization" : "Program";
+  document.querySelector('[data-id="programLabel"]').textContent = p.role === "teacher" ? "Specialization:" : "Program:";
   document.querySelector('[data-id="program"]').textContent = p.course || "—";
   document.querySelector('[data-id="status"]').textContent = p.status || "—";
-  document.querySelector('[data-id="validUntil"]').textContent = p.valid_until ? fmtDate(p.valid_until) : "—";
+  document.querySelector('[data-id="validUntil"]').textContent = p.valid_until || "—";
   document.querySelector('[data-id="contactNumber"]').textContent = p.contact_number || "—";
   document.querySelector('[data-id="email"]').textContent = p.email || "—";
   document.querySelector('[data-id="address"]').textContent = p.address || "—";
@@ -166,7 +164,7 @@ document.getElementById("profileForm").addEventListener("submit", async (e) => {
     birthdate: document.getElementById("pBirthdate").value || null,
     gender: document.getElementById("pGender").value,
     status: document.getElementById("pStatus").value.trim(),
-    valid_until: document.getElementById("pValidUntil").value || null,
+    valid_until: document.getElementById("pValidUntil").value.trim() || null,
     contact_number: document.getElementById("pContactNumber").value.trim(),
     email: document.getElementById("pEmail").value.trim(),
     address: document.getElementById("pAddress").value.trim(),
@@ -217,7 +215,7 @@ document.getElementById("btnDownloadBack").addEventListener("click", async () =>
   const originalTransform = back.style.transform;
   back.style.transform = "none"; // un-rotate so it isn't captured mirrored
   await downloadElementAsPng(back, `${currentProfile.id_number}-school-id-back.png`);
-  back.style.transform = originalTransform; // restore the flip position
+  back.style.transform = originalTransform;
 });
 
 document.addEventListener("DOMContentLoaded", loadProfile);
