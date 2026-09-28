@@ -48,6 +48,7 @@ class UserOut(BaseModel):
     photo_id: Optional[str] = None
     created_at: Optional[str] = None
 
+
 class TokenResponse(BaseModel):
     access_token: str
     user: UserOut
@@ -72,9 +73,12 @@ class ProfileUpdateRequest(BaseModel):
     personal_quote: Optional[str] = None
     photo_id: Optional[str] = None
 
+
 class AnnouncementCreate(BaseModel):
-    title: str
-    body: str
+    title: Optional[str] = ""
+    body: Optional[str] = ""
+    media_url: Optional[str] = None
+    media_type: Optional[str] = None
 
 
 class CourseCreate(BaseModel):
@@ -106,6 +110,7 @@ class GradeCreate(BaseModel):
     course_id: str
     grading_period: str
     grade: str
+
 
 class CommentCreate(BaseModel):
     body: str

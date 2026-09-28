@@ -20,34 +20,22 @@
     <p class="mb-0 text-muted">Hello, <strong data-user-name></strong> — glad to see you back.</p>
   </div>
 
-  <div class="grid lg:grid-cols-[2fr_1fr] gap-8">
-    <div>
-      <h2 class="font-display text-lg font-semibold mb-3">Announcements</h2>
-      <div id="dashAnnouncements" class="space-y-4 mb-6">
-        <div class="bg-white border border-border rounded-lg text-center text-muted py-8">Loading announcements…</div>
+  <div class="max-w-2xl mx-auto">
+
+    <!-- Composer (professors only) -->
+    <div class="teacher-only">
+      <div class="bg-white border border-border rounded-lg p-4 mb-5 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-navy text-white flex items-center justify-center text-sm font-semibold flex-shrink-0" data-user-initials>—</div>
+        <button type="button" id="openComposer" class="flex-1 text-left bg-[#FAF6EC] hover:bg-[#F1EBDA] border border-border rounded-full px-4 py-2 text-sm text-muted transition">
+          What's on your mind?
+        </button>
+        <button type="button" id="openComposerMedia" class="text-sm font-semibold text-navy hover:text-gold transition whitespace-nowrap">📷 Photo / Video</button>
       </div>
     </div>
 
-    <div class="teacher-only">
-      <div class="bg-white border border-border rounded-lg">
-        <div class="border-b border-border px-4 py-3">
-          <h2 class="font-display text-base font-semibold m-0">Post an Announcement</h2>
-        </div>
-        <div class="p-4">
-          <div id="annError" class="hidden bg-[#FBE8E6] border border-[#F3C7C2] text-[#8A2E26] rounded-md px-3 py-2 mb-3 text-sm"></div>
-          <form id="postAnnouncementForm" class="space-y-3">
-            <div>
-              <label for="annTitle" class="block text-sm font-semibold text-navy-dark mb-1">Title</label>
-              <input type="text" id="annTitle" required class="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
-            </div>
-            <div>
-              <label for="annBody" class="block text-sm font-semibold text-navy-dark mb-1">Message</label>
-              <textarea id="annBody" rows="4" required class="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"></textarea>
-            </div>
-            <button type="submit" class="w-full bg-gold text-navy-dark font-semibold rounded-md py-2 hover:bg-gold-light transition">Post</button>
-          </form>
-        </div>
-      </div>
+    <h2 class="font-display text-lg font-semibold mb-3">Announcements</h2>
+    <div id="dashAnnouncements" class="space-y-4 mb-8">
+      <div class="bg-white border border-border rounded-lg text-center text-muted py-8">Loading announcements…</div>
     </div>
   </div>
 </main>
@@ -56,9 +44,44 @@
   <div class="max-w-6xl mx-auto px-4 text-center text-sm text-muted">&copy; 2026 Enchong Dee University — Student System Management</div>
 </footer>
 
+<!-- ===== Create / Edit post window ===== -->
+<div id="postModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+  <div class="bg-white rounded-xl w-full max-w-lg max-h-[90vh] flex flex-col border-t-4 border-gold shadow-xl">
+    <div class="flex items-center justify-between px-5 py-3 border-b border-border">
+      <h2 id="postModalTitle" class="font-display font-semibold">Create post</h2>
+      <button type="button" id="btnClosePostModal" class="text-muted hover:text-ink text-2xl leading-none" aria-label="Close">&times;</button>
+    </div>
+
+    <form id="postForm" class="flex flex-col flex-1 min-h-0">
+      <div class="px-5 py-4 overflow-y-auto space-y-3">
+        <div id="postError" class="hidden bg-[#FBE8E6] border border-[#F3C7C2] text-[#8A2E26] rounded-md px-3 py-2 text-sm"></div>
+
+        <input type="text" id="postTitle" placeholder="Title (optional)" maxlength="120"
+               class="w-full border border-border rounded-md px-3 py-2 font-semibold focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+        <textarea id="postBody" rows="5" placeholder="What's on your mind?"
+                  class="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"></textarea>
+
+        <div id="postMediaPreview" class="hidden relative rounded-lg overflow-hidden border border-border"></div>
+
+        <div class="flex items-center justify-between border border-border rounded-lg px-3 py-2">
+          <span class="text-sm text-muted">Add to your post</span>
+          <button type="button" id="btnPickMedia" class="text-sm font-semibold text-navy hover:text-gold transition">📷 Photo / Video</button>
+        </div>
+        <input type="file" id="postFile" class="hidden"
+               accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm,video/quicktime">
+      </div>
+
+      <div class="px-5 py-3 border-t border-border">
+        <button type="submit" id="postSubmit" class="w-full bg-gold text-navy-dark font-semibold rounded-md py-2 hover:bg-gold-light transition disabled:opacity-60">Post</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script src="js/api.js"></script>
 <script src="js/navbar.js"></script>
 <script src="js/guard.js"></script>
+<script src="js/modal.js"></script>
 <script src="js/dashboard.js"></script>
 </body>
 </html>
