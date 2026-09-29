@@ -114,3 +114,17 @@ class GradeCreate(BaseModel):
 
 class CommentCreate(BaseModel):
     body: str
+
+
+class CategoryCreate(BaseModel):
+    name: str
+    weight: float = 0
+
+
+class ItemCreate(BaseModel):
+    title: str
+    max_score: float = 100
+
+
+class ScoreSet(BaseModel):
+    score: Optional[float] = None
