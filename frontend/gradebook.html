@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gradebook — Enchong Dee University</title>
+<link rel="stylesheet" href="css/companion.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="js/tailwind-config.js"></script>
+</head>
+<body class="bg-[#FAF6EC] text-ink font-body">
+
+<div id="navbar-slot"></div>
+
+<main class="max-w-6xl mx-auto px-4 py-8">
+  <h1 class="font-display text-xl font-semibold mb-1">Gradebook</h1>
+  <p class="text-muted text-sm mb-4">
+    Pick a course, then add categories (Assignments, Projects, Exam, Participation, or anything else) and
+    columns inside each one. Add or remove a column or a whole category any time — the Total updates itself
+    from each category's weight.
+  </p>
+
+  <div class="flex flex-wrap items-center gap-3 mb-5">
+    <select id="courseSelect" class="border border-border rounded-md px-3 py-2 bg-white text-sm min-w-[16rem]">
+      <option value="">Loading courses…</option>
+    </select>
+    <span id="weightWarning" class="hidden text-xs text-danger"></span>
+  </div>
+
+  <div id="gradebookError" class="hidden bg-[#FBE8E6] border border-[#F3C7C2] text-[#8A2E26] rounded-md px-3 py-2 mb-4 text-sm"></div>
+
+  <div id="gradebookEmpty" class="hidden bg-white border border-border rounded-lg text-center text-muted py-10">
+    Choose a course above to see or build its gradebook.
+  </div>
+
+  <div id="gradebookWrap" class="hidden bg-white border border-border rounded-lg overflow-x-auto">
+    <table class="text-sm border-collapse w-full">
+      <thead id="gbHeadCategories"></thead>
+      <thead id="gbHeadItems"></thead>
+      <tbody id="gbBody"></tbody>
+    </table>
+  </div>
+
+  <div class="mt-4">
+    <button id="btnAddCategory" class="border border-navy text-navy rounded-md px-4 py-2 text-sm font-semibold hover:bg-navy hover:text-white transition">+ Add Category</button>
+  </div>
+</main>
+
+<footer class="border-t border-border py-6 mt-4">
+  <div class="max-w-6xl mx-auto px-4 text-center text-sm text-muted">&copy; 2026 Enchong Dee University — Student System Management</div>
+</footer>
+
+<!-- Add/Edit category -->
+<div id="categoryModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+  <div class="bg-white rounded-lg max-w-sm w-full p-5 border-t-4 border-gold shadow-xl">
+    <h3 id="categoryModalTitle" class="font-display font-semibold mb-3">Add Category</h3>
+    <div id="categoryError" class="hidden bg-[#FBE8E6] border border-[#F3C7C2] text-[#8A2E26] rounded-md px-3 py-2 mb-3 text-sm"></div>
+    <label class="block text-sm font-semibold text-navy-dark mb-1">Name</label>
+    <input type="text" id="categoryName" placeholder="e.g. Assignments" class="w-full border border-border rounded-md px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+    <label class="block text-sm font-semibold text-navy-dark mb-1">Weight (%)</label>
+    <input type="number" id="categoryWeight" min="0" max="100" step="1" placeholder="e.g. 30" class="w-full border border-border rounded-md px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+    <div class="flex justify-end gap-2">
+      <button type="button" id="btnCancelCategory" class="border border-muted text-muted rounded-md px-4 py-1.5 text-sm hover:bg-muted hover:text-white transition">Cancel</button>
+      <button type="button" id="btnSaveCategory" class="bg-gold text-navy-dark rounded-md px-4 py-1.5 text-sm font-semibold hover:bg-gold-light transition">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add column (item) -->
+<div id="itemModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+  <div class="bg-white rounded-lg max-w-sm w-full p-5 border-t-4 border-gold shadow-xl">
+    <h3 class="font-display font-semibold mb-3">Add Column</h3>
+    <div id="itemError" class="hidden bg-[#FBE8E6] border border-[#F3C7C2] text-[#8A2E26] rounded-md px-3 py-2 mb-3 text-sm"></div>
+    <label class="block text-sm font-semibold text-navy-dark mb-1">Title</label>
+    <input type="text" id="itemTitle" placeholder="e.g. Assignment 1" class="w-full border border-border rounded-md px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+    <label class="block text-sm font-semibold text-navy-dark mb-1">Max Score</label>
+    <input type="number" id="itemMaxScore" min="1" step="1" value="100" class="w-full border border-border rounded-md px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+    <div class="flex justify-end gap-2">
+      <button type="button" id="btnCancelItem" class="border border-muted text-muted rounded-md px-4 py-1.5 text-sm hover:bg-muted hover:text-white transition">Cancel</button>
+      <button type="button" id="btnSaveItem" class="bg-gold text-navy-dark rounded-md px-4 py-1.5 text-sm font-semibold hover:bg-gold-light transition">Save</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/navbar.js"></script>
+<script src="js/guard.js"></script>
+<script src="js/modal.js"></script>
+<script src="js/gradebook.js"></script>
+</body>
+</html>
