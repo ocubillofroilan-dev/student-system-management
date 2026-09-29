@@ -7,10 +7,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from config import CORS_ORIGINS
-from routers import auth, profile, announcements, courses, schedule, attendance, grades, students
+from routers import auth, profile, announcements, courses, schedule, attendance, grades, students, gradebook
 
 app = FastAPI(
-    title="Northbridge College - Student System Management API",
+    title="Enchong Dee University - Student System Management API",
     description="REST API for the Student System Management project (FastAPI + Supabase Postgres).",
     version="1.0.0",
 )
@@ -31,6 +31,7 @@ app.include_router(schedule.router)
 app.include_router(attendance.router)
 app.include_router(grades.router)
 app.include_router(students.router)
+app.include_router(gradebook.router)
 
 
 @app.get("/")

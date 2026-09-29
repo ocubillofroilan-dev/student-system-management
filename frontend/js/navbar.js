@@ -2,7 +2,9 @@
  * navbar.js — the app navbar's HTML lives here ONCE. Every logged-in
  * page includes a <div id="navbar-slot"></div> and this script fills
  * it in, so adding/changing a nav link only needs to happen in this
- * one file instead of six.
+ * one file instead of every page. Gradebook is wrapped in the
+ * teacher-only class (same CSS rule guard.js relies on everywhere
+ * else in the app), so students never see the link at all.
  */
 function renderNavbar() {
   const slot = document.getElementById("navbar-slot");
@@ -25,6 +27,7 @@ function renderNavbar() {
             <li><a class="nav-link" href="schedule.html">Schedule</a></li>
             <li><a class="nav-link" href="attendance.html">Attendance</a></li>
             <li><a class="nav-link" href="grades.html">Grades</a></li>
+            <li class="teacher-only"><a class="nav-link" href="gradebook.html">Gradebook</a></li>
           </ul>
           <div class="flex items-center gap-3 mt-3 lg:mt-0">
             <span class="text-white/60 text-sm"><span data-user-name></span> &middot; <span data-user-role></span></span>
