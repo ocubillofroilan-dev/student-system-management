@@ -79,6 +79,7 @@ class AnnouncementCreate(BaseModel):
     body: Optional[str] = ""
     media_url: Optional[str] = None
     media_type: Optional[str] = None
+    target_department: Optional[str] = None  # None = visible to everyone
 
 
 class CourseCreate(BaseModel):

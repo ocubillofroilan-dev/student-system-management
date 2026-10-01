@@ -1,13 +1,20 @@
 /**
  * dashboard.js — Facebook-style announcement feed.
  * - Everyone: reads posts (text + optional photo/video) and replies.
- * - Professors: create posts, edit their OWN posts, delete posts. The
- *   same "post window" is used for both creating and editing.
+ *   You can edit or delete your OWN reply; professors can also
+ *   delete any reply (not edit someone else's).
+ * - Professors: create posts, edit their OWN posts, delete posts, and
+ *   choose "Post to: Everyone" or a specific department. The same
+ *   "post window" is used for both creating and editing. The backend
+ *   already filters the feed by department for whoever's logged in,
+ *   so this file just shows a small "For: <department>" badge on any
+ *   post that was targeted.
  * - The file is uploaded only when the professor presses Post/Save, so
  *   cancelling never leaves stray files in storage.
  * - All user-written text is escaped before going into innerHTML, so a
  *   reply can't inject code into someone else's page.
- * Requires modal.js (showConfirm) loaded before this file.
+ * Requires modal.js (showConfirm/showAlert) and colleges.js (COLLEGES)
+ * loaded before this file.
  */
 const me = window.currentUser;
 const isTeacher = !!me && me.role === "teacher";
@@ -58,7 +65,71 @@ function mediaHtml(a) {
   return `<img src="${esc(a.media_url)}" alt="Announcement photo" loading="lazy" class="w-full max-h-[32rem] object-cover mt-3">`;
 }
 
-// ---------- comments ----------
+// ---------- comments (replies) ----------
+function commentRow(c) {
+  const canEdit = me && c.user_id === me.id;
+  const canDelete = canEdit || isTeacher;
+  const roleLabel = c.author_role === "teacher" ? "Professor" : "Student";
+
+  const menu = (canEdit || canDelete) ? `
+    <div class="relative flex-shrink-0">
+      <button type="button" class="w-6 h-6 rounded-full hover:bg-[#EDE6D3] text-muted text-base leading-none" data-comment-menu="${c.id}" aria-label="Reply options">&#8943;</button>
+      <div class="hidden absolute right-0 mt-1 w-32 bg-white border border-border rounded-md shadow-lg z-10 py-1 text-left" data-comment-menu-panel="${c.id}">
+        ${canEdit ? `<button type="button" class="block w-full text-left px-3 py-1.5 text-xs hover:bg-[#FAF6EC]" data-comment-edit="${c.id}">Edit</button>` : ""}
+        ${canDelete ? `<button type="button" class="block w-full text-left px-3 py-1.5 text-xs text-danger hover:bg-[#FAF6EC]" data-comment-delete="${c.id}">Delete</button>` : ""}
+      </div>
+    </div>` : "";
+
+  return `
+    <div class="flex gap-2 items-start" data-comment-row="${c.id}">
+      <div class="w-8 h-8 rounded-full ${c.author_role === "teacher" ? "bg-navy text-white" : "bg-gold text-navy-dark"} flex items-center justify-center text-xs font-semibold flex-shrink-0">${esc(initials(c.author_name))}</div>
+      <div class="bg-[#F5F0E4] rounded-2xl px-3 py-2 min-w-0 flex-1">
+        <div class="flex items-start justify-between gap-2">
+          <div class="text-xs font-semibold">${esc(c.author_name)} <span class="font-normal text-muted">${roleLabel}</span></div>
+          ${menu}
+        </div>
+        <div class="text-sm whitespace-pre-wrap break-words" data-comment-body="${c.id}">${esc(c.body)}</div>
+        <div class="text-[0.65rem] text-muted mt-0.5">${timeAgo(c.created_at)}${c.edited_at ? " · Edited" : ""}</div>
+      </div>
+    </div>
+  `;
+}
+
+function closeCommentMenus() {
+  document.querySelectorAll("[data-comment-menu-panel]").forEach((p) => p.classList.add("hidden"));
+}
+document.addEventListener("click", closeCommentMenus);
+
+function startCommentEdit(commentId, currentBody, listEl, announcementId) {
+  const row = listEl.querySelector(`[data-comment-row="${commentId}"] [data-comment-body="${commentId}"]`);
+  if (!row) return;
+  row.outerHTML = `
+    <form class="flex gap-2 mt-1" data-comment-edit-form="${commentId}">
+      <input type="text" value="${esc(currentBody)}" required
+             class="flex-1 border border-border rounded-full px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold">
+      <button type="submit" class="text-xs font-semibold text-navy hover:text-gold">Save</button>
+      <button type="button" data-comment-cancel="${commentId}" class="text-xs text-muted hover:text-ink">Cancel</button>
+    </form>
+  `;
+  const form = listEl.querySelector(`[data-comment-edit-form="${commentId}"]`);
+  form.querySelector("input").focus();
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const newBody = form.querySelector("input").value.trim();
+    if (!newBody) return;
+    try {
+      await window.api.put(`/announcements/comments/${commentId}`, { body: newBody });
+      loadComments(announcementId, listEl);
+    } catch (err) {
+      showAlert(err.message);
+    }
+  });
+  listEl.querySelector(`[data-comment-cancel="${commentId}"]`).addEventListener("click", () => {
+    loadComments(announcementId, listEl);
+  });
+}
+
 async function loadComments(announcementId, listEl) {
   try {
     const comments = await window.api.get(`/announcements/${announcementId}/comments`);
@@ -66,16 +137,39 @@ async function loadComments(announcementId, listEl) {
       listEl.innerHTML = `<div class="text-xs text-muted">No replies yet.</div>`;
       return;
     }
-    listEl.innerHTML = comments.map((c) => `
-      <div class="flex gap-2 items-start">
-        <div class="w-8 h-8 rounded-full ${c.author_role === "teacher" ? "bg-navy text-white" : "bg-gold text-navy-dark"} flex items-center justify-center text-xs font-semibold flex-shrink-0">${esc(initials(c.author_name))}</div>
-        <div class="bg-[#F5F0E4] rounded-2xl px-3 py-2 min-w-0">
-          <div class="text-xs font-semibold">${esc(c.author_name)} <span class="font-normal text-muted">${c.author_role === "teacher" ? "Professor" : "Student"}</span></div>
-          <div class="text-sm whitespace-pre-wrap break-words">${esc(c.body)}</div>
-          <div class="text-[0.65rem] text-muted mt-0.5">${timeAgo(c.created_at)}</div>
-        </div>
-      </div>
-    `).join("");
+    listEl.innerHTML = comments.map(commentRow).join("");
+
+    listEl.querySelectorAll("[data-comment-menu]").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const panel = listEl.querySelector(`[data-comment-menu-panel="${btn.dataset.commentMenu}"]`);
+        const wasHidden = panel.classList.contains("hidden");
+        closeCommentMenus();
+        if (wasHidden) panel.classList.remove("hidden");
+      });
+    });
+
+    listEl.querySelectorAll("[data-comment-edit]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        closeCommentMenus();
+        const bodyEl = listEl.querySelector(`[data-comment-body="${btn.dataset.commentEdit}"]`);
+        startCommentEdit(btn.dataset.commentEdit, bodyEl ? bodyEl.textContent : "", listEl, announcementId);
+      });
+    });
+
+    listEl.querySelectorAll("[data-comment-delete]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        closeCommentMenus();
+        showConfirm("Delete this reply?", async () => {
+          try {
+            await window.api.del(`/announcements/comments/${btn.dataset.commentDelete}`);
+            loadComments(announcementId, listEl);
+          } catch (err) {
+            showAlert(err.message);
+          }
+        }, { confirmLabel: "Delete Reply", danger: true });
+      });
+    });
   } catch (err) {
     listEl.innerHTML = `<div class="text-xs text-muted">Couldn't load replies.</div>`;
   }
@@ -109,6 +203,8 @@ function postCard(a) {
           </div>
           ${menu}
         </div>
+
+        ${a.target_department ? `<div class="inline-block mt-2 text-[0.65rem] font-mono uppercase tracking-wide bg-[#F5F0E4] text-navy border border-border rounded-full px-2 py-0.5">For: ${esc(a.target_department)}</div>` : ""}
 
         <div class="mt-3">
           ${a.title ? `<h3 class="font-display font-semibold text-base mb-1">${esc(a.title)}</h3>` : ""}
@@ -249,6 +345,12 @@ function renderMediaPreview() {
   };
 }
 
+function populateTargetOptions() {
+  const select = document.getElementById("postTarget");
+  select.innerHTML = `<option value="">Everyone</option>` +
+    COLLEGES.map((c) => `<option value="${c.name}">${c.code} — ${c.name}</option>`).join("");
+}
+
 function openComposer(mode, announcement) {
   composerMode = mode;
   editingId = announcement ? announcement.id : null;
@@ -256,6 +358,9 @@ function openComposer(mode, announcement) {
   existingMedia = announcement && announcement.media_url
     ? { url: announcement.media_url, type: announcement.media_type }
     : null;
+
+  populateTargetOptions();
+  document.getElementById("postTarget").value = announcement ? (announcement.target_department || "") : "";
 
   document.getElementById("postTitle").value = announcement ? (announcement.title || "") : "";
   document.getElementById("postBody").value = announcement ? (announcement.body || "") : "";
@@ -339,6 +444,7 @@ document.getElementById("postForm").addEventListener("submit", async (e) => {
     const payload = {
       title,
       body,
+      target_department: document.getElementById("postTarget").value || null,
       media_url: media ? media.url : null,
       media_type: media ? media.type : null,
     };
