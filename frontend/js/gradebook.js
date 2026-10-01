@@ -6,6 +6,15 @@
  * SCORE per student per column. Add or remove a category or a column
  * any time.
  *
+ * Visual structure: each category is one clearly bounded block — a
+ * heading bar across its own columns, a THICK gold divider marking
+ * where the next category's block starts, and its columns centered
+ * underneath with their own thin dividers. This matters once there
+ * are several categories with similarly-named columns (e.g. two
+ * categories that each have a column called "Task 2") — without a
+ * strong visual boundary between blocks it's impossible to tell which
+ * column belongs to which category.
+ *
  * The Total column is computed on the backend (GET /gradebook/{id}
  * already returns it worked out), so this file never duplicates that
  * math — it renders what the server sends and re-fetches after every
@@ -90,6 +99,17 @@ function renderWeightWarning() {
   el.classList.remove("hidden");
 }
 
+/**
+ * Borders are the whole trick here. GROUP_DIVIDER marks the first
+ * column of a category's block (a thick gold line), ITEM_DIVIDER
+ * marks every other column inside that same block (a thin line) —
+ * applied identically across both header rows and every body row, so
+ * the gold lines always land in the same place top to bottom and a
+ * category's columns read as one visually joined unit.
+ */
+const GROUP_DIVIDER = "border-l-[3px] border-l-gold";
+const ITEM_DIVIDER = "border-l border-border";
+
 function renderGradebook() {
   const categories = currentGradebook.categories;
   const students = currentGradebook.students;
@@ -101,41 +121,50 @@ function renderGradebook() {
   const itemHead = document.getElementById("gbHeadItems");
   const body = document.getElementById("gbBody");
 
-  let catHtml = "<tr class='bg-navy-dark text-white font-mono text-xs uppercase tracking-wide'>" +
-    "<th class='text-left px-4 py-3 font-medium sticky left-0 bg-navy-dark' rowspan='2'>Student</th>";
-  categories.forEach((cat) => {
+  // ---- header row 1: one heading bar per category ----
+  let catHtml = "<tr>" +
+    "<th class='text-left px-4 py-3 font-medium sticky left-0 bg-navy-dark text-white font-mono text-xs uppercase tracking-wide align-bottom' rowspan='2'>Student</th>";
+  categories.forEach((cat, catIdx) => {
     const span = Math.max(cat.items.length, 1);
-    catHtml += "<th colspan='" + span + "' class='px-3 py-2 text-center font-medium border-l border-navy-soft'>" +
+    const divider = catIdx === 0 ? "" : GROUP_DIVIDER;
+    catHtml += "<th colspan='" + span + "' class='px-3 py-2 text-center bg-navy-dark text-white " + divider + "'>" +
       "<div class='flex items-center justify-center gap-2'>" +
-      "<span class='normal-case font-display text-[0.85rem]'>" + esc(cat.name) + " <span class='text-gold-light'>(" + cat.weight + "%)</span></span>" +
-      "<button type='button' class='text-white/70 hover:text-white' data-edit-category='" + cat.id + "' title='Edit category'>&#9998;</button>" +
-      "<button type='button' class='text-white/70 hover:text-danger' data-delete-category='" + cat.id + "' title='Delete category'>&#10005;</button>" +
+      "<span class='font-display font-semibold text-sm'>" + esc(cat.name) + "</span>" +
+      "<span class='font-mono text-[0.65rem] text-gold-light'>" + cat.weight + "%</span>" +
+      "<button type='button' class='w-5 h-5 inline-flex items-center justify-center rounded hover:bg-white/15 text-white/70 hover:text-white' data-edit-category='" + cat.id + "' title='Edit category'>&#9998;</button>" +
+      "<button type='button' class='w-5 h-5 inline-flex items-center justify-center rounded hover:bg-danger text-white/70 hover:text-white' data-delete-category='" + cat.id + "' title='Delete category'>&#10005;</button>" +
       "</div></th>";
   });
-  catHtml += "<th class='px-4 py-3 text-center font-medium border-l border-navy-soft' rowspan='2'>Total</th></tr>";
+  catHtml += "<th class='px-4 py-3 text-center bg-navy-dark text-white font-mono text-xs uppercase tracking-wide align-bottom border-l-[3px] border-l-gold' rowspan='2'>Total</th></tr>";
   catHead.innerHTML = catHtml;
 
-  let itemHtml = "<tr class='bg-navy text-white text-xs'>";
-  categories.forEach((cat) => {
+  // ---- header row 2: the columns inside each category ----
+  let itemHtml = "<tr>";
+  categories.forEach((cat, catIdx) => {
+    const groupStart = catIdx === 0 ? "" : GROUP_DIVIDER;
     if (!cat.items.length) {
-      itemHtml += "<th class='px-2 py-2 border-l border-navy-soft font-normal text-white/50'>" +
-        "<button type='button' class='hover:text-gold-light' data-add-item='" + cat.id + "'>+ Add column</button></th>";
+      itemHtml += "<th class='px-2 py-2 bg-navy-soft " + groupStart + "'>" +
+        "<button type='button' class='text-[0.68rem] font-semibold text-white bg-white/10 hover:bg-gold hover:text-navy-dark rounded-full px-2.5 py-1 transition' data-add-item='" + cat.id + "'>+ Add column</button></th>";
     } else {
       cat.items.forEach((item, idx) => {
+        const divider = idx === 0 ? groupStart : ITEM_DIVIDER;
         const isLast = idx === cat.items.length - 1;
-        itemHtml += "<th class='px-2 py-2 border-l border-navy-soft font-normal whitespace-nowrap'>" +
-          "<div class='flex items-center justify-center gap-1'>" +
-          "<span>" + esc(item.title) + " <span class='text-white/60'>/" + item.max_score + "</span></span>" +
-          "<button type='button' class='text-white/70 hover:text-danger' data-delete-item='" + item.id + "' title='Delete column'>&#10005;</button>" +
+        itemHtml += "<th class='px-2 py-2 bg-navy-soft text-white " + divider + "'>" +
+          "<div class='flex flex-col items-center gap-1 min-w-[4.5rem]'>" +
+          "<div class='flex items-center gap-1 whitespace-nowrap'>" +
+          "<span class='text-xs font-semibold'>" + esc(item.title) + "</span>" +
+          "<span class='text-[0.65rem] text-white/60'>/" + item.max_score + "</span>" +
+          "<button type='button' class='w-4 h-4 inline-flex items-center justify-center rounded hover:bg-danger text-white/60 hover:text-white' data-delete-item='" + item.id + "' title='Delete column'>&#10005;</button>" +
           "</div>" +
-          (isLast ? "<button type='button' class='block mx-auto mt-1 text-[0.65rem] text-gold-light hover:text-gold' data-add-item='" + cat.id + "'>+ column</button>" : "") +
-          "</th>";
+          (isLast ? "<button type='button' class='text-[0.62rem] text-gold-light hover:text-gold underline' data-add-item='" + cat.id + "'>+ column</button>" : "") +
+          "</div></th>";
       });
     }
   });
   itemHtml += "</tr>";
   itemHead.innerHTML = itemHtml;
 
+  // ---- body: one row per enrolled student ----
   if (!students.length) {
     let colCount = 2;
     categories.forEach((c) => { colCount += Math.max(c.items.length, 1); });
@@ -143,28 +172,31 @@ function renderGradebook() {
     return;
   }
 
-  body.innerHTML = students.map((student) => {
-    let row = "<tr class='border-t border-border'>" +
-      "<td class='px-4 py-2 font-semibold sticky left-0 bg-white whitespace-nowrap'>" + esc(student.last_name) + ", " + esc(student.first_name) + "</td>";
+  body.innerHTML = students.map((student, rowIdx) => {
+    const zebra = rowIdx % 2 === 1 ? "bg-[#FAF6EC]" : "bg-white";
+    let row = "<tr class='border-t border-border " + zebra + "'>" +
+      "<td class='px-4 py-2 font-semibold sticky left-0 " + zebra + " whitespace-nowrap'>" + esc(student.last_name) + ", " + esc(student.first_name) + "</td>";
 
-    categories.forEach((cat) => {
+    categories.forEach((cat, catIdx) => {
+      const groupStart = catIdx === 0 ? "" : GROUP_DIVIDER;
       if (!cat.items.length) {
-        row += "<td class='px-2 py-2 text-center text-muted border-l border-border'>&mdash;</td>";
+        row += "<td class='px-2 py-2 text-center text-muted " + groupStart + "'>&mdash;</td>";
       } else {
-        cat.items.forEach((item) => {
+        cat.items.forEach((item, idx) => {
+          const divider = idx === 0 ? groupStart : ITEM_DIVIDER;
           const perStudent = scores[item.id] || {};
           const value = perStudent[student.id];
           const valueAttr = (value === undefined || value === null) ? "" : value;
-          row += "<td class='px-1 py-1 border-l border-border'>" +
+          row += "<td class='px-1.5 py-1.5 text-center " + divider + "'>" +
             "<input type='number' min='0' max='" + item.max_score + "' step='any' value='" + valueAttr + "' placeholder='&mdash;' " +
-            "class='w-16 text-center border border-border rounded px-1 py-1 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold' " +
+            "class='w-20 text-center border border-border rounded px-1 py-1.5 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold' " +
             "data-score-item='" + item.id + "' data-score-student='" + student.id + "'></td>";
         });
       }
     });
 
     const total = totals[student.id];
-    row += "<td class='px-4 py-2 text-center font-semibold border-l border-border " + (total !== null && total !== undefined ? "" : "text-muted") + "'>" +
+    row += "<td class='px-4 py-2 text-center font-semibold border-l-[3px] border-l-gold " + (total !== null && total !== undefined ? "" : "text-muted") + "'>" +
       (total !== null && total !== undefined ? total + "%" : "&mdash;") + "</td></tr>";
     return row;
   }).join("");
